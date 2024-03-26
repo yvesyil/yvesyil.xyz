@@ -1,0 +1,133 @@
+@font-face {
+  font-family: 'EB Garamond 12';
+  src: url('/fonts/eb-garamond/12-regular.eot') format('eot'),
+      url('/fonts/eb-garamond/12-regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: auto;
+}
+
+@font-face {
+  font-family: 'EB Garamond 12';
+  src: url('/fonts/eb-garamond/12-italic.eot') format('eot'),
+      url('/fonts/eb-garamond/12-italic.woff') format('woff');
+  font-weight: normal;
+  font-style: italic;
+  font-display: auto;
+}
+
+:root {
+  --site-blue: rgb(81, 172, 214);
+  --site-gray: rgba(255, 255, 255, 0.7);
+}
+
+html, body {
+  width: 100%;
+  background-color: #000;
+  font-size: 2vw;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  font-family: 'EB Garamond 12', serif;
+}
+
+canvas {
+  height: 100%;
+  width: 100%;
+}
+
+h1 {
+  font-size: 5vw;
+}
+
+h2 {
+  font-size: 4vw;
+}
+
+h3 {
+  font-size: 2.5vw;
+}
+
+p {
+  text-align: justify;
+  color: var(--site-gray);
+}
+
+a {
+  color: var(--site-blue);
+  text-decoration: none;
+}
+
+ul {
+  line-height: 2em;
+  list-style-position: inside;
+}
+
+
+
+h2[name="section-title"] {
+  position: relative;
+  margin-bottom: 50px;
+}
+
+div[name="section-body"] {
+  display: flex; 
+  flex-direction: column; 
+  align-content: space-between;
+}
+
+#about {
+  width: 500px;
+  height: 350px;
+}
+
+#quote {
+  font-size: 2.5vw;
+}
+
+#mandelbrot-ascii {
+  font-family: monospace !important;
+  font-size: 5px;
+  letter-spacing: 3px;
+}
+
+@media screen and (max-width: 900px) {
+  #mandelbrot-ascii {
+    font-size: 3px;
+    letter-spacing: 2px;
+    transform: rotate(-90deg);
+  }
+
+  #about {
+    width: 250px;
+    height: 300px;
+  }
+
+  #quote {
+    font-size: 3vh;
+  }
+
+  h1 {
+    font-size: 6vh;
+    top: -200px;
+  }
+  h2 {
+    font-size: 5vh;
+  }
+  h3 {
+    font-size: 3vh;
+  }
+  p {
+    font-size: 2vh;
+  }
+  ul {
+    font-size: 2.5vh;
+  }
+  
+  #container > div {
+    height: 150px;
+    width: 350px;
+  }
+}
