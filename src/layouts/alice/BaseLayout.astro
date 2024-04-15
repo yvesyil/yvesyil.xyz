@@ -1,0 +1,63 @@
+---
+import '../../styles/alice/global.css';
+import { ViewTransitions, fade } from 'astro:transitions';
+---
+
+<!doctype html>
+<html transition:animate={fade({ duration: '0.4s' })} lang="tr">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Astro description" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+    <link rel="preload" href="/fonts/eb-garamond/12-regular.woff" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="/fonts/eb-garamond/12-italic.woff" as="font" type="font/woff" crossorigin>
+		<title>alice</title>
+		<ViewTransitions />
+	</head>
+	<body>
+    <main>
+      <div>
+        <slot />
+      </div>
+    </main>
+    <canvas id="fluid"></canvas>
+		<script src="../../script/fluid.js"></script>
+	</body>
+</html>
+
+<style>
+  body {
+    display: flex;
+    justify-content: center;
+    background-color: transparent;
+  }
+
+  main {
+    width: 70vw;
+    text-transform: lowercase;
+    background-color: transparent;
+  }
+
+  main > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+  }
+
+	#fluid {
+		z-index: -100;
+    margin: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+	}
+  
+  @media screen and (max-width: 900px) {
+    main {
+      width: 80vw;
+    }
+  }
+</style>

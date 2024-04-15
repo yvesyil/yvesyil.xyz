@@ -17,6 +17,9 @@ dependencies:
   preact:
     specifier: ^10.20.1
     version: 10.20.1
+  three:
+    specifier: ^0.163.0
+    version: 0.163.0
   typescript:
     specifier: ^5.3.3
     version: 5.3.3
@@ -3511,6 +3514,10 @@ packages:
       streamx: 2.15.6
     dev: false
     optional: true
+
+  /three@0.163.0:
+    resolution: {integrity: sha512-HlMgCb2TF/dTLRtknBnjUTsR8FsDqBY43itYop2+Zg822I+Kd0Ua2vs8CvfBVefXkBdNDrLMoRTGCIIpfCuDew==}
+    dev: false
 
   /to-fast-properties@2.0.0:
     resolution: {integrity: sha512-/OaKK0xYrs3DmxRYqL/yDc+FxFUVYhDlXMhRmv3z915w2HF1tnN1omB354j8VUGO/hbRzyD6Y3sA7v7GS/ceog==}
