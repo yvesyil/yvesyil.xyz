@@ -4,7 +4,7 @@ import '../styles/global.css';
 import { ViewTransitions } from 'astro:transitions';
 ---
 
-<!doctype html>
+<!doctype html style="overscroll-behavior-y: none;">
 <html transition:animate={fade({ duration: '0.8s' })} lang="en">
 	<head>
 		<meta charset="UTF-8" />
@@ -44,14 +44,7 @@ import { ViewTransitions } from 'astro:transitions';
 	@media (pointer: none), (pointer: coarse), (hover: none) {
 		body {
 			height: 100vh;
+			height: -webkit-fill-available;
 		}
 	}
 </style>
-
-<script>
-	import { mobileAndTabletCheck } from "../script/utils";
-
-	if (mobileAndTabletCheck()) {
-		document.body.style.height = '100vh';
-	}
-</script>
