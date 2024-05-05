@@ -58,13 +58,13 @@ const { title, next, prev } = Astro.props;
 	let middlePos = (bodyHeight - innerHeight) / 2;
 
 	const scrollEvent = (e: Event) => {
-		let href = null;
+		let href: string | null = null;
 		if (middlePos > scrollY) {
-			href = document.querySelector('main > div')?.getAttribute('data-prev');
+			href = document.querySelector('main > div')?.getAttribute('data-prev')!;
 		} else if (middlePos == scrollY) {
 			return;
 		} else {
-			href = document.querySelector('main > div')?.getAttribute('data-next');
+			href = document.querySelector('main > div')?.getAttribute('data-next')!;
 		}
 		if (href === null) {
 			return;
@@ -78,14 +78,14 @@ const { title, next, prev } = Astro.props;
 	let touchendY = 0;
 
 	const swipeEvent = () => {
-		let href = null;
+		let href: string | null = null;
 		// swiped up
 		if (touchendY + 100 < touchstartY) {
-			href = document.querySelector('main > div')?.getAttribute('data-next');
+			href = document.querySelector('main > div')?.getAttribute('data-next')!;
 		}
 		// swiped down
 		if (touchendY - 100 > touchstartY) {
-			href = document.querySelector('main > div')?.getAttribute('data-prev');
+			href = document.querySelector('main > div')?.getAttribute('data-prev')!;
 		}
 		if (href === null) {
 			return;
