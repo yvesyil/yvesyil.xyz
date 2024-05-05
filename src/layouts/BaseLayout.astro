@@ -47,3 +47,11 @@ import { ViewTransitions } from 'astro:transitions';
 		}
 	}
 </style>
+
+<script>
+	import { mobileAndTabletCheck } from "../script/utils";
+
+	if (mobileAndTabletCheck()) {
+		document.body.style.height = '100vh';
+	}
+</script>
