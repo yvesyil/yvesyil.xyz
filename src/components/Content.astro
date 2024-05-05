@@ -105,7 +105,7 @@ const { title, next, prev } = Astro.props;
 	document.addEventListener('astro:page-load', () => {
 		if (!mobileAndTabletCheck()) {
 			scroll(0, middlePos);
-			addEventListener('scroll', scrollEvent);
+			setTimeout(() => addEventListener('scroll', scrollEvent), 100);
 		}
 	});
 </script>
