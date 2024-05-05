@@ -5,7 +5,7 @@ import { ViewTransitions } from 'astro:transitions';
 ---
 
 <!doctype html>
-<html transition:animate={fade({ duration: '0.4s' })} lang="en">
+<html transition:animate={fade({ duration: '0.8s' })} lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content="Astro description" />
@@ -18,5 +18,32 @@ import { ViewTransitions } from 'astro:transitions';
 	</head>
 	<body>
 		<slot />
+    <canvas id="fluid"></canvas>
+		<script src="../script/fluid.js"></script>
 	</body>
 </html>
+
+<style>
+	#fluid {
+		z-index: -100;
+    margin: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+	}
+
+	body {
+    display: flex;
+    justify-content: center;
+    background-color: transparent;
+		height: 110vh;
+  }
+
+	@media (pointer:none), (pointer:coarse) {
+		body {
+			height: 100vh;
+		}
+	}
+</style>

@@ -1,10 +1,10 @@
 ---
-const { title, next } = Astro.props;
+const { title, next, prev } = Astro.props;
 ---
 <main>
-	<div data-next={next}>
+	<div data-next={next} data-prev={prev}>
 		{title ? <h2 class="section-title">{title}</h2> : null }
-		<slot class="section-body" />
+		<div class="section-body"><slot /></div>
 	</div>
 </main>
 
@@ -17,32 +17,95 @@ const { title, next } = Astro.props;
 		justify-content: center;
 		align-items: center;
 	}
+
 	main > div {
 		display: flex;
 		justify-content: space-around;
 		align-items: center;
 		flex-direction: column;
-		width: 800px;
-		height: 300px;
-	}
-	.section-title {
+		width: 70vw;
+		height: 70vh;
 		position: relative;
-		margin-bottom: 50px;
+		overflow: hidden;
 	}
+
+	.section-title {
+		top: 0;
+		position: absolute;
+	}
+
 	.section-body {
 		display: flex; 
 		flex-direction: column; 
 		align-content: space-between;
+		position: absolute;
+		max-height: 50vh;
 	}
+
+	@media screen and (max-width: 900px) {
+    main > div {
+      width: 80vw;
+      height: 80vh;
+    }
+  }
 </style>
 
 <script>
 	import { navigate } from 'astro:transitions/client';
+	import { mobileAndTabletCheck } from '../script/utils';
 
-	document.addEventListener('astro:page-load', () => {
-		document.querySelector('main')?.addEventListener('click', e => {
-			const href = document.querySelector('main > div')?.getAttribute('data-next');
-			navigate('/' + href);
+	let bodyHeight = document.body.clientHeight;
+	let middlePos = (bodyHeight - innerHeight) / 2;
+
+	const scrollEvent = (e: Event) => {
+		let href = null;
+		if (middlePos > scrollY) {
+			href = document.querySelector('main > div')?.getAttribute('data-prev');
+		} else if (middlePos == scrollY) {
+			return;
+		} else {
+			href = document.querySelector('main > div')?.getAttribute('data-next');
+		}
+		if (href === null) {
+			return;
+		}
+		removeEventListener('scroll', scrollEvent);
+		addEventListener('scroll', (e: Event) => e.preventDefault());
+		setTimeout(() => navigate('/' + href), 100);
+	};
+	
+	let touchstartY = 0;
+	let touchendY = 0;
+
+	const swipeEvent = () => {
+		let href = null;
+		// swiped up
+		if (touchendY + 100 < touchstartY) {
+			href = document.querySelector('main > div')?.getAttribute('data-next');
+		}
+		// swiped down
+		if (touchendY - 100 > touchstartY) {
+			href = document.querySelector('main > div')?.getAttribute('data-prev');
+		}
+		if (href === null) {
+			return;
+		}
+		navigate('/' + href);
+	};
+
+	if (mobileAndTabletCheck()) {
+		addEventListener('touchstart', (e: TouchEvent) => {
+			touchstartY = e.changedTouches[0].screenY;
 		});
+		addEventListener('touchend', (e: TouchEvent) => {
+			touchendY = e.changedTouches[0].screenY;
+			swipeEvent();
+		});
+	} 
+	document.addEventListener('astro:page-load', () => {
+		if (!mobileAndTabletCheck()) {
+			scroll(0, middlePos);
+			addEventListener('scroll', scrollEvent);
+		}
 	});
 </script>

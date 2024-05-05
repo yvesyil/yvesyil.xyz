@@ -1,0 +1,24 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Content from "../../components/Content.astro";
+let allPosts = null;
+try {
+  allPosts = await Astro.glob('./*.md');
+} catch {}
+---
+
+<BaseLayout>
+  <Content title="writings" next="contact" prev="projects">
+    <ul>
+      {
+        allPosts ? allPosts.map(post => <li><a href={post.url}>{post.frontmatter.title}</a></li>) : ""
+      }
+    </ul>
+  </Content> 
+</BaseLayout>
+
+<style>
+  h1 {
+    text-align: center;
+  }
+</style>
