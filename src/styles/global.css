@@ -18,6 +18,7 @@
 
 :root {
   --site-blue: rgb(81, 172, 214);
+  --site-dark-blue: rgb(41, 22, 194);
   --site-red: rgb(144, 10, 10);
   --site-gray: rgba(255, 255, 255, 0.7);
 }
