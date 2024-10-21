@@ -7,31 +7,19 @@ import Timer from "../components/Timer"
     <main>
         <div>
 			<div class="section-body">
-				<h2 style="text-align: center;">Dear <b style="color: var(--site-red);">Nina</b></h2>
-				<br>
-				<p>I know I made you upset, but I made you this little webpage :)</p>
-				<br>
-				<p>Here's a poem:</p>
-				<br>
-				<p>
-					<b style="color: var(--site-red);">Roses</b> are red,
-					<br>
-					<b style="color: var(--site-dark-blue);">Violets</b> are blue,
-					<br>
-					Sugar is sweet,
-					<br>
-					And so are <b id="you">you</b>.
-				</p>
-				<br>
-				<p>And, here's the time left until <b style="color: var(--site-red);">this Saturday</b>:</p>
-				<br>
-				<h3><Timer client:load /></h3>
+				<span id="sign">👌</span>
 			</div>
         </div>
     </main>
 </BaseLayout>
 
 <style>
+	#sign {
+		transform: rotate(180deg);
+		font-family: 'Arial';
+		font-size: 10rem;
+	}
+
 	#you {
 		background-image: repeating-linear-gradient(45deg, violet, indigo, blue, green, yellow, orange, red, violet);
 		-webkit-background-clip: text;
@@ -92,5 +80,9 @@ import Timer from "../components/Timer"
       width: 80vw;
       height: 80vh;
     }
+
+	#sign {
+		font-size: 20rem;
+	}
   }
 </style>
