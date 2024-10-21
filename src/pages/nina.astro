@@ -7,7 +7,7 @@ import Timer from "../components/Timer"
     <main>
         <div>
 			<div class="section-body">
-				<span id="sign">👌</span>
+				<span id="sign">ily silly woman</span>
 			</div>
         </div>
     </main>
@@ -16,20 +16,17 @@ import Timer from "../components/Timer"
 <style>
 	#sign {
 		transform: rotate(180deg);
-		font-family: 'Arial';
-		font-size: 10rem;
-	}
-
-	#you {
+		font-size: 2rem;
 		background-image: repeating-linear-gradient(45deg, violet, indigo, blue, green, yellow, orange, red, violet);
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
-		animation: rainbow 6s linear infinite;
+		animation: rotate-rainbow 6s linear infinite;
 		background-size: 800% 800%;
 	}
 
-	@keyframes rainbow {
+	@keyframes rotate-rainbow {
 		0% {
+			transform: rotate(0deg);
 			background-position: 0% 50%
 		}
 
@@ -38,7 +35,21 @@ import Timer from "../components/Timer"
 		}
 
 		100% {
+			transform: rotate(360deg);
 			background-position: 0% 50%
+		}
+	}
+
+	#you {
+
+	}
+
+	@keyframes rainbow {
+		0% {
+		}
+
+
+		100% {
 		}
 	}
 
