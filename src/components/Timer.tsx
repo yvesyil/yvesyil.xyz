@@ -1,5 +1,4 @@
-import { Component } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useState } from 'react';
 import moment from 'moment';
 
 function Timer() {
