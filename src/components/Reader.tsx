@@ -24,10 +24,13 @@ export default function Reader() {
             border: 'none',
             background: 'transparent',
             width: '100%',
-            fontSize: isMobile ? '2rem' : '3rem',
+            height: 'auto',
+            maxHeight: isMobile ? '70vh' : '40vh',
+            fontSize: isMobile ? '2rem' : '1rem',
             fontFamily: '"EB Garamond 12", serif',
             textAlign: 'center' as const,
             color: '#ccc',
+            resize: 'none' as const,
         },
         reader: {
             display: 'flex',
@@ -43,9 +46,14 @@ export default function Reader() {
             outline: 'none',
             background: 'transparent',
             width: '100%',
-            height: '100%',
+            height: isMobile ? '50rem' : '16rem',
+            maxHeight: isMobile ? '80vh' : '50vh',
             position: 'relative' as const,
             bottom: isMobile ? '5vh' : '10vh',
+            display: 'flex',
+            flexDirection: 'column' as const,
+            alignItems: 'center',
+            justifyContent: 'center',
         },
         readerButton: {
             border: 'none',
@@ -87,6 +95,7 @@ export default function Reader() {
     const [wpm, setWpm] = useState(300);
     const [isPaused, setIsPaused] = useState(false);
     const [intervalTime, setIntervalTime] = useState(60000 / wpm);
+    const [textareaHeight, setTextareaHeight] = useState('auto');
 
     useEffect(() => {
         if (isReading && words.length > 0 && !isPaused) {
@@ -126,7 +135,7 @@ export default function Reader() {
 
     const startReading = (e: React.MouseEvent<HTMLButtonElement>) => {
         if (text.trim() === '') return;
-        setWords(text.split(/\s+/));
+        setWords(text.trim().split(/\s+/));
         setWordIndex(0);
         setIsReading(true);
     };
@@ -184,7 +193,7 @@ export default function Reader() {
 
     const Stats = () => (
         <div style={style.stats}>
-            <div>{wordIndex}/{words.length} words</div>
+            <div>{wordIndex + 1}/{words.length} words</div>
             <div>{wpm} wpm</div>
         </div>
     );
@@ -213,13 +222,22 @@ export default function Reader() {
                 <>
                     <div style={style.readerInput}>
                         <textarea 
-                            style={style.input} 
+                            style={{
+                                ...style.input,
+                                height: textareaHeight
+                            }} 
                             value={text} 
-                            onChange={(e) => setText(e.target.value)} 
+                            onChange={(e) => {
+                                e.currentTarget.style.height = 'auto';
+                                const newHeight = `${e.currentTarget.scrollHeight}px`;
+                                e.currentTarget.style.height = newHeight;
+                                setTextareaHeight(newHeight);
+                                setText(e.target.value);
+                            }}
                             placeholder="paste text here" 
                         />
+                        <button style={{...style.readerButton}} onClick={startReading}>read</button>
                     </div>
-                    <button style={style.readerButton} onClick={startReading}>read</button>
                 </>
             )}
         </div>
