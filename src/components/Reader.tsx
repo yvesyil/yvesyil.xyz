@@ -68,12 +68,10 @@ export default function Reader() {
         if (isReading && words.length > 0 && !isPaused) {
             const interval = setInterval(() => {
                 if (wordIndex < words.length) {
-                    setCurrentWord(words[wordIndex]);
                     setWordIndex(wordIndex + 1);
                 } else {
                     setIsReading(false);
                     setWordIndex(0);
-                    setCurrentWord('');
                 }
             }, intervalTime);
 
@@ -117,7 +115,6 @@ export default function Reader() {
         setIsReading(false);
         setIsPaused(false);
         setWordIndex(0);
-        setCurrentWord('');
     };
 
     const Progress = () => {
