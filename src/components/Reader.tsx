@@ -57,12 +57,12 @@ export default function Reader() {
 
     const [text, setText] = useState('');
     const [isReading, setIsReading] = useState(false);
-    const [currentWord, setCurrentWord] = useState('');
     const [wordIndex, setWordIndex] = useState(0);
     const [words, setWords] = useState<string[]>([]);
+    const currentWord = words[wordIndex];
     const [wpm, setWpm] = useState(300);
     const [isPaused, setIsPaused] = useState(false);
-    const [intervalTime] = useState(60000 / wpm);
+    const [intervalTime, setIntervalTime] = useState(60000 / wpm);
 
     useEffect(() => {
         if (isReading && words.length > 0 && !isPaused) {
@@ -89,6 +89,12 @@ export default function Reader() {
                 setWordIndex(Math.max(0, wordIndex - 1));
             } else if (e.code === 'ArrowRight') {
                 setWordIndex(Math.min(words.length - 1, wordIndex + 1));
+            } else if (e.code === 'ArrowUp') {
+                setWpm(Math.min(1000, wpm + 50));
+                setIntervalTime(60000 / wpm);
+            } else if (e.code === 'ArrowDown') {
+                setWpm(Math.max(100, wpm - 50));
+                setIntervalTime(60000 / wpm);
             }
         };
 
