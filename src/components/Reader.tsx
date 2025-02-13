@@ -199,7 +199,7 @@ export default function Reader() {
                             type="text" 
                             value={text} 
                             onChange={(e) => setText(e.target.value)} 
-                            placeholder="enter text" 
+                            placeholder="paste text here" 
                         />
                     </div>
                     <button style={style.readerButton} onClick={startReading}>read</button>
