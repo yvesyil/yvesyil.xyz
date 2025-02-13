@@ -1,16 +1,33 @@
-import { Component, useState, useEffect } from 'react';
+import { Component, useState, useEffect, useMemo } from 'react';
+
+const useIsMobile = () => {
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return isMobile;
+};
 
 export default function Reader() {
-    const style = {
+    const isMobile = useIsMobile();
+    
+    const style = useMemo(() => ({
         input: {
             outline: 'none',
             border: 'none',
             background: 'transparent',
-            color: '#fff',
             width: '100%',
-            fontSize: '3rem',
+            fontSize: isMobile ? '2rem' : '3rem',
             fontFamily: '"EB Garamond 12", serif',
             textAlign: 'center' as const,
+            color: '#ccc',
         },
         reader: {
             display: 'flex',
@@ -20,25 +37,25 @@ export default function Reader() {
             width: '70vw',
             height: '70vh',
             position: 'relative' as const,
-            overflow: 'hidden',
         },
         readerInput: {
             border: 'none',
             outline: 'none',
             background: 'transparent',
             width: '100%',
+            height: '100%',
             position: 'relative' as const,
-            bottom: '10vh',
+            bottom: isMobile ? '5vh' : '10vh',
         },
         readerButton: {
             border: 'none',
             outline: 'none',
             background: 'transparent',
-            color: '#fff',
-            fontSize: '3rem',
+            color: 'var(--site-red)',
+            fontSize: isMobile ? '4rem' : '3rem',
             fontFamily: '"EB Garamond 12", serif',
             cursor: 'pointer',
-            margin: '0 1rem',
+            margin: '1rem 1rem 0 1rem',
         },
         readerOutput: {
             display: 'flex',
@@ -51,9 +68,16 @@ export default function Reader() {
             fontSize: '5rem',
             fontFamily: '"EB Garamond 12", serif',
             position: 'relative' as const,
-            left: '12vw',
+            left: isMobile ? '0' : '12vw',
         },
-    }
+        stats: {
+            position: 'absolute' as const,
+            top: '2rem',
+            right: '2rem',
+            fontSize: isMobile ? '2rem' : '1rem',
+            color: '#888'
+        },
+    }), [isMobile]);
 
     const [text, setText] = useState('');
     const [isReading, setIsReading] = useState(false);
@@ -130,7 +154,7 @@ export default function Reader() {
                 <div style={{
                     width: `${progress}%`,
                     height: '100%',
-                    background: '#fff',
+                    background: 'var(--site-red)',
                     transition: 'width 0.2s ease-in-out'
                 }} />
             </div>
@@ -159,13 +183,7 @@ export default function Reader() {
     };
 
     const Stats = () => (
-        <div style={{
-            position: 'absolute',
-            top: '2rem',
-            right: '2rem',
-            fontSize: '1rem',
-            color: '#888'
-        }}>
+        <div style={style.stats}>
             <div>{wordIndex}/{words.length} words</div>
             <div>{wpm} wpm</div>
         </div>
@@ -194,9 +212,8 @@ export default function Reader() {
             ) : (
                 <>
                     <div style={style.readerInput}>
-                        <input 
+                        <textarea 
                             style={style.input} 
-                            type="text" 
                             value={text} 
                             onChange={(e) => setText(e.target.value)} 
                             placeholder="paste text here" 
