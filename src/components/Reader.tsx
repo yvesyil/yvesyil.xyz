@@ -41,7 +41,6 @@ export default function Reader() {
         },
         readerOutput: {
             display: 'flex',
-            justifyContent: 'center',
             alignItems: 'center',
             width: '100%',
             height: '100%',
@@ -50,7 +49,8 @@ export default function Reader() {
             color: '#fff',
             fontSize: '5rem',
             fontFamily: '"EB Garamond 12", serif',
-            textAlign: 'center' as const,
+            position: 'relative' as const,
+            left: '12vw',
         }
     }
 
@@ -89,7 +89,15 @@ export default function Reader() {
             {isReading ? (
                 <div style={style.readerOutput}>
                     <div style={style.readerOutputText}>
-                        {currentWord}
+                        {
+                            currentWord.split('').map((char, index) => (
+                                index < currentWord.length / 2 ? (
+                                    <span style={{color: '#ddd', fontWeight: 'bold'}} key={index}>{char}</span>
+                                ) : (
+                                    <span style={{color: '#bbb'}} key={index}>{char}</span>
+                                )
+                            ))
+                        }
                     </div>
                 </div>
             ) : (
