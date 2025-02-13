@@ -59,7 +59,7 @@ export default function Reader() {
     const [isReading, setIsReading] = useState(false);
     const [wordIndex, setWordIndex] = useState(0);
     const [words, setWords] = useState<string[]>([]);
-    const currentWord = words[wordIndex];
+    const currentWord = words[wordIndex] || '';
     const [wpm, setWpm] = useState(300);
     const [isPaused, setIsPaused] = useState(false);
     const [intervalTime, setIntervalTime] = useState(60000 / wpm);
