@@ -16,30 +16,31 @@ const { title, next, prev } = Astro.props;
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		overflow: hidden;
 	}
 
 	main > div {
 		display: flex;
-		justify-content: space-around;
 		align-items: center;
 		flex-direction: column;
 		width: 70vw;
-		height: 70vh;
+		height: 50vh;
 		position: relative;
 		overflow: hidden;
 	}
 
 	.section-title {
 		top: 0;
-		position: absolute;
+		position: relative;
 	}
 
 	.section-body {
 		display: flex; 
 		flex-direction: column; 
 		align-content: space-between;
-		position: absolute;
-		max-height: 50vh;
+		position: relative;
+		max-height: 40vh;
+		top: 5vh;
 	}
 
 	@media screen and (max-width: 900px) {
