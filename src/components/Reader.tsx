@@ -17,6 +17,7 @@ const useIsMobile = () => {
 
 export default function Reader() {
     const isMobile = useIsMobile();
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     
     const style = useMemo(() => ({
         input: {
@@ -60,7 +61,9 @@ export default function Reader() {
             outline: 'none',
             background: 'transparent',
             color: 'var(--site-red)',
-            fontSize: isMobile ? '4rem' : '3rem',
+            fontSize: windowWidth > 2560 ? '1.5rem' :
+                     windowWidth > 1920 ? '2rem' :
+                     isMobile ? '4rem' : '3rem',
             fontFamily: '"EB Garamond 12", serif',
             cursor: 'pointer',
             margin: '1rem 1rem 0 1rem',
@@ -73,7 +76,8 @@ export default function Reader() {
         },
         readerOutputText: {
             color: '#fff',
-            fontSize: '5rem',
+            fontSize: windowWidth > 2560 ? '2rem' : 
+                     windowWidth > 1920 ? '3rem' : '5rem',
             fontFamily: '"EB Garamond 12", serif',
             position: 'relative' as const,
             left: isMobile ? '0' : '12vw',
@@ -85,7 +89,7 @@ export default function Reader() {
             fontSize: isMobile ? '2rem' : '1rem',
             color: '#888'
         },
-    }), [isMobile]);
+    }), [isMobile, windowWidth]);
 
     const [text, setText] = useState('');
     const [isReading, setIsReading] = useState(false);
@@ -132,6 +136,15 @@ export default function Reader() {
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
     }, [wordIndex, words.length]);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const startReading = (e: React.MouseEvent<HTMLButtonElement>) => {
         if (text.trim() === '') return;
