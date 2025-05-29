@@ -12,6 +12,10 @@ import Content from '../components/Content.astro';
 </BaseLayout>
 
 <style>
+	h1 {
+		font-size: 7vmin;
+	}
+
 	p, a {
 		font-size: 2vmin;
 	}
@@ -23,6 +27,9 @@ import Content from '../components/Content.astro';
 	}
 
 	@media screen and (max-width: 900px) {
+		h1 {
+			font-size: 8vmax;
+		}
 		p, a {
 			font-size: 2.5vmax;
 		}
