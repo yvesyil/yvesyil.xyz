@@ -22,6 +22,12 @@
   font-display: auto;
 }
 
+@font-feature-values "Yana" {
+  @styleset {
+    ss02: 2;
+  }
+}
+
 :root {
   --site-blue: rgb(81, 172, 214);
   --site-dark-blue: rgb(41, 22, 194);
@@ -43,7 +49,7 @@ html, body {
   width: 100%;
   background-color: #000;
   color: #fff;
-  font-size: 2vw;
+  font-size: 2.5vw;
   font-family: 'Yana', serif;
 }
 
@@ -53,32 +59,37 @@ html, body {
 }
 
 h1 {
-  font-size: 5vmin;
+  font-size: 6vmin;
+  line-height: 1.2;
 }
 
 h2 {
-  font-size: 4vmin;
+  font-size: 5vmin;
+  line-height: 1.3;
 }
 
 h3 {
-  font-size: 2.5vmin;
+  font-size: 3.5vmin;
+  line-height: 1.3;
 }
 
 p {
-  font-size: 2vmin;
+  font-size: 2.8vmin;
   text-align: justify;
   color: var(--site-gray);
+  line-height: 1.4;
 }
 
 a {
-  font-size: 2vmin;
+  font-size: 2.8vmin;
   color: var(--site-red);
   text-decoration: none;
+  line-height: 1.4;
 }
 
 ul {
-  line-height: 2em;
-  font-size: 2vmin;
+  line-height: 2rem;
+  font-size: 2.8vmin;
   list-style-position: inside;
   list-style: none;
 }
@@ -89,16 +100,16 @@ strong {
 
 @media screen and (max-width: 900px) {
   h1 {
-    font-size: 6vmax;
+    font-size: 7vmax;
     top: -200px;
   }
   h2 {
-    font-size: 5vmax;
+    font-size: 6vmax;
   }
   h3 {
-    font-size: 3vmax;
+    font-size: 4vmax;
   }
   p, a, ul {
-    font-size: 2vmax;
+    font-size: 3vmax;
   }
 }

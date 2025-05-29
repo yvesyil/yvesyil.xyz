@@ -6,9 +6,25 @@ import Content from '../components/Content.astro';
 
 <BaseLayout>
 	<Content next="whoami" prev="contact">
-			<h1 style="text-align: center;">yves yil</h1>
-			<br>
-			<p>ipa: <a href="http://ipa-reader.xyz/?text=iv%20j%C9%AAl">/iv jɪl/</a> eng: [eev yil]</p>
+			<h1 style="text-align: center;"><span style="font-variant-alternates: styleset(ss02);">Y</span>ves yil</h1>
+			<p>IPA: <a style="font-family: Garamond, serif;" href="http://ipa-reader.xyz/?text=iv%20j%C9%AAl">/iv jɪl/</a> Eng: [eev yil]</p>
 	</Content>
 </BaseLayout>
 
+<style>
+	p, a {
+		font-size: 2vmin;
+	}
+
+	:global(.section-body) {
+		justify-content: center !important;
+		align-items: center !important;
+		text-align: center;
+	}
+
+	@media screen and (max-width: 900px) {
+		p, a {
+			font-size: 2.5vmax;
+		}
+	}
+</style>

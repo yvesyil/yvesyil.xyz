@@ -24,7 +24,7 @@ const { title, next, prev } = Astro.props;
 		align-items: center;
 		flex-direction: column;
 		width: 70vw;
-		height: 50vh;
+		height: 70vh;
 		position: relative;
 		overflow: hidden;
 	}
@@ -32,21 +32,51 @@ const { title, next, prev } = Astro.props;
 	.section-title {
 		top: 0;
 		position: relative;
+		flex-shrink: 0;
 	}
 
 	.section-body {
 		display: flex; 
 		flex-direction: column; 
-		align-content: space-between;
+		justify-content: flex-start;
+		align-items: stretch;
 		position: relative;
-		max-height: 40vh;
-		top: 5vh;
+		height: 60vh;
+		min-height: 400px;
+		max-width: 100%;
+		padding: 1rem;
+		box-sizing: border-box;
+		overflow-y: auto;
+		top: 2vh;
+		gap: 1rem;
+	}
+
+	.section-body > * {
+		flex-shrink: 0;
+	}
+
+	.section-body > h1 {
+		margin-bottom: 1rem;
+	}
+
+	.section-body > p, 
+	.section-body > ul {
+		margin-bottom: 1rem;
+	}
+
+	.section-body > br {
+		display: none;
 	}
 
 	@media screen and (max-width: 900px) {
     main > div {
       width: 80vw;
-      height: 80vh;
+      height: 90vh;
+    }
+    
+    .section-body {
+      height: 75vh;
+      min-height: 500px;
     }
   }
 </style>
