@@ -1,4 +1,4 @@
-export function debounce(func, wait, immediate) {
+export function debounce(func, wait, immediate = false) {
   var timeout;
   return function() {
       var context = this, args = arguments;
@@ -10,6 +10,29 @@ export function debounce(func, wait, immediate) {
       clearTimeout(timeout);
       timeout = setTimeout(later, wait);
       if (callNow) func.apply(context, args);
+  }
+}
+
+// Fast debounce for scroll events - executes immediately and then debounces
+export function fastDebounce(func, wait) {
+  var timeout;
+  var lastCall = 0;
+  return function() {
+      var context = this, args = arguments;
+      var now = Date.now();
+      
+      if (now - lastCall > wait) {
+          // Execute immediately if enough time has passed
+          lastCall = now;
+          func.apply(context, args);
+      } else {
+          // Otherwise debounce
+          clearTimeout(timeout);
+          timeout = setTimeout(() => {
+              lastCall = Date.now();
+              func.apply(context, args);
+          }, wait);
+      }
   }
 }
 

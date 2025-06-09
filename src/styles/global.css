@@ -125,3 +125,36 @@ strong {
     font-size: 3vmax;
   }
 }
+
+@keyframes vertical-slide-up-old {
+  from {
+    transform: translateY(0) translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-15%);
+    opacity: 0;
+  }
+}
+
+@keyframes vertical-slide-up {
+  from {
+    transform: translateY(15%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes vertical-slide-down {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(20%);
+    opacity: 0;
+  }
+}

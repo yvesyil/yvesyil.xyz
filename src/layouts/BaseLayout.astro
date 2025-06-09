@@ -1,11 +1,31 @@
 ---
-import { fade } from 'astro/virtual-modules/transitions.js';
+import { fade, slide,  } from 'astro/virtual-modules/transitions.js';
 import '../styles/global.css';
 import { ViewTransitions } from 'astro:transitions';
+
+const verticalSlide = {
+	old: {
+		name: 'vertical-slide-up-old',
+		duration: '0.3s',
+		easing: 'ease-out',
+		fillMode: 'backwards',
+	},
+	new: {
+		name: 'vertical-slide-up',
+		duration: '0.3s',
+		easing: 'ease-out',
+		fillMode: 'backwards',
+	},
+};
+
+const customTransition = {
+	forwards: verticalSlide,
+	backwards: verticalSlide,
+};
 ---
 
 <!doctype html>
-<html transition:animate={fade({ duration: '0.5s' })} lang="en">
+<html transition:animate={customTransition} lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content="❤️‍🔥" />

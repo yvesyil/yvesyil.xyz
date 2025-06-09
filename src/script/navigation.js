@@ -7,6 +7,8 @@ const pageOrder = ['/', '/whoami/', '/projects/', '/writings/', '/contact/'];
 let currentIndex = 0;
 let isNavigating = false;
 let listenersAttached = false;
+let lastNavigationTime = 0;
+const NAVIGATION_COOLDOWN = 250; // Reduced cooldown for faster response
 
 // Function to check if current page should have scroll navigation
 function shouldEnableNavigation() {
@@ -22,9 +24,13 @@ function updateCurrentIndex() {
 	currentIndex = index !== -1 ? index : 0;
 }
 
-// Handle wheel events for scroll navigation
+// Handle wheel events for scroll navigation - minimal debounce for maximum responsiveness
 const handleWheel = debounce(async (event) => {
 	if (isNavigating || !shouldEnableNavigation()) return;
+	
+	// Add cooldown to prevent rapid navigation
+	const now = Date.now();
+	if (now - lastNavigationTime < NAVIGATION_COOLDOWN) return;
 	
 	event.preventDefault();
 	
@@ -40,6 +46,7 @@ const handleWheel = debounce(async (event) => {
 	const targetPage = pageOrder[targetIndex];
 	
 	isNavigating = true;
+	lastNavigationTime = now;
 	
 	try {
 		await navigate(targetPage);
@@ -47,11 +54,11 @@ const handleWheel = debounce(async (event) => {
 		console.error('Navigation error:', error);
 	}
 	
-	// Reset navigation flag after transition
+	// Minimal timeout for faster responsiveness
 	setTimeout(() => {
 		isNavigating = false;
-	}, 500);
-}, 150);
+	}, 150); // Further reduced timeout
+}, 30); // Minimal debounce delay for near-instant response
 
 // Handle touch events for mobile
 let touchStartY = 0;
@@ -69,8 +76,13 @@ const handleTouchStart = (event) => {
 	touchStartTime = Date.now();
 };
 
+// Touch events with navigation cooldown
 const handleTouchEnd = debounce(async (event) => {
 	if (isNavigating || !shouldEnableNavigation()) return;
+	
+	// Add cooldown to prevent rapid navigation
+	const now = Date.now();
+	if (now - lastNavigationTime < NAVIGATION_COOLDOWN) return;
 	
 	const touch = event.changedTouches[0];
 	touchEndY = touch.screenY;
@@ -80,15 +92,11 @@ const handleTouchEnd = debounce(async (event) => {
 	const deltaX = Math.abs(touchStartX - touchEndX);
 	const touchDuration = Date.now() - touchStartTime;
 	
-	// Only handle vertical swipes that are:
-	// 1. Primarily vertical (deltaX < deltaY)
-	// 2. Have sufficient distance (> 50px)
-	// 3. Are quick enough (< 500ms) to be intentional
-	// 4. Are not too quick (> 50ms) to avoid accidental triggers
-	if (Math.abs(deltaY) < 50 || 
+	// Relaxed constraints for better responsiveness
+	if (Math.abs(deltaY) < 30 || 
 		deltaX > Math.abs(deltaY) || 
 		touchDuration > 500 || 
-		touchDuration < 50) {
+		touchDuration < 30) { // Reduced minimum time
 		return;
 	}
 	
@@ -107,6 +115,7 @@ const handleTouchEnd = debounce(async (event) => {
 	const targetPage = pageOrder[targetIndex];
 	
 	isNavigating = true;
+	lastNavigationTime = now;
 	
 	try {
 		await navigate(targetPage);
@@ -116,12 +125,16 @@ const handleTouchEnd = debounce(async (event) => {
 	
 	setTimeout(() => {
 		isNavigating = false;
-	}, 500);
-}, 150);
+	}, 150);
+}, 25); // Faster touch debounce
 
 // Handle keyboard navigation
 const handleKeyDown = async (event) => {
 	if (isNavigating || !shouldEnableNavigation()) return;
+	
+	// Add cooldown to prevent rapid navigation
+	const now = Date.now();
+	if (now - lastNavigationTime < NAVIGATION_COOLDOWN) return;
 	
 	let targetIndex;
 	switch(event.key) {
@@ -141,6 +154,7 @@ const handleKeyDown = async (event) => {
 	const targetPage = pageOrder[targetIndex];
 	
 	isNavigating = true;
+	lastNavigationTime = now;
 	
 	try {
 		await navigate(targetPage);
@@ -150,7 +164,7 @@ const handleKeyDown = async (event) => {
 	
 	setTimeout(() => {
 		isNavigating = false;
-	}, 500);
+	}, 150);
 };
 
 // Function to attach event listeners
@@ -195,10 +209,14 @@ initializeNavigation();
 
 // Re-initialize after each page transition
 document.addEventListener('astro:page-load', () => {
-	// Small delay to ensure DOM is ready
+	// Reset navigation state on page load
+	isNavigating = false;
+	lastNavigationTime = 0;
+	
+	// Immediate initialization
 	setTimeout(() => {
 		initializeNavigation();
-	}, 50);
+	}, 10); // Minimal delay
 });
 
 // Clean up before page transitions
