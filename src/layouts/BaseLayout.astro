@@ -36,12 +36,16 @@ import { ViewTransitions } from 'astro:transitions';
 				}
 			}
 
-			// Update on initial load
+			// Initialize on first load
 			updateScrollIndicator();
 
-			// Update after page transitions
+			// Re-initialize after page transitions
 			document.addEventListener('astro:page-load', () => {
-				setTimeout(updateScrollIndicator, 50);
+				setTimeout(() => {
+					updateScrollIndicator();
+					// Trigger a resize event to help fluid canvas re-initialize
+					window.dispatchEvent(new Event('resize'));
+				}, 100);
 			});
 		</script>
 	</body>

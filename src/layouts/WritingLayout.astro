@@ -23,6 +23,15 @@ import { ViewTransitions } from 'astro:transitions';
         </div>
 		<canvas id="fluid"></canvas>
 		<script src="../script/fluid.js"></script>
+		<script>
+			// Re-initialize fluid after page transitions
+			document.addEventListener('astro:page-load', () => {
+				setTimeout(() => {
+					// Trigger a resize event to help fluid canvas re-initialize
+					window.dispatchEvent(new Event('resize'));
+				}, 100);
+			});
+		</script>
 	</body>
 </html>
 

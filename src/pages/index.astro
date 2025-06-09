@@ -5,31 +5,18 @@ import Content from '../components/Content.astro';
 ---
 
 <BaseLayout>
-	<Content next="whoami" prev="contact">
-			<h1 style="text-align: center;"><span style="font-variant-alternates: styleset(ss02);">Y</span>ves yil</h1>
-			<span class="subtext">IPA: <a style="font-family: Garamond, serif;" href="http://ipa-reader.xyz/?text=iv%20j%C9%AAl">/iv jɪl/</a> Eng: [eev yil]</span>
+	<Content title="Yves Yil" next="whoami" prev="contact">
+		<p class="subtext">IPA: <a style="font-family: Garamond, serif;" href="http://ipa-reader.xyz/?text=iv%20j%C9%AAl">/iv jɪl/</a> Eng: [eev yil]</span>
 	</Content>
 </BaseLayout>
 
 <style>
-	h1 {
-		font-size: 7vmin;
-	}
-
 	.subtext, .subtext * {
 		font-size: 2vmin;
 	}
 
-	:global(.section-body) {
-		justify-content: center !important;
-		align-items: center !important;
-		text-align: center;
-	}
 
 	@media screen and (max-width: 900px) {
-		h1 {
-			font-size: 8vmax;
-		}
 		.subtext, .subtext * {
 			font-size: 2vmax;
 		}

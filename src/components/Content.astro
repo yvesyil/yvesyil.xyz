@@ -3,7 +3,7 @@ const { title, next, prev } = Astro.props;
 ---
 <main class="content-navigation-enabled">
 	<div data-next={next} data-prev={prev}>
-		{title ? <h2 class="section-title">{title}</h2> : null }
+		{title ? <h1 class="section-title">{title}</h1> : null }
 		<div class="section-body"><slot /></div>
 	</div>
 </main>

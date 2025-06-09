@@ -1,3 +1,18 @@
+// Global transition state management
+let isTransitioning = false;
+
+// Set up global transition state listeners (only once)
+document.addEventListener('astro:before-preparation', () => {
+  isTransitioning = true;
+});
+
+document.addEventListener('astro:after-swap', () => {
+  // Small delay to ensure canvas is properly initialized
+  setTimeout(() => {
+    isTransitioning = false;
+  }, 100);
+});
+
 document.addEventListener('astro:page-load', () => {
   const m = document.querySelector('body');
   const canvas = document.getElementById("fluid");
@@ -1574,6 +1589,9 @@ document.addEventListener('astro:page-load', () => {
   */
 
   m.addEventListener("mousemove", (e) => {
+    // Skip mouse events during transitions to prevent WebGL conflicts
+    if (isTransitioning) return;
+    
     let pointer = pointers[0];
     //if (pointer.down) return;
     let posX = scaleByPixelRatio(e.clientX);
@@ -1588,6 +1606,9 @@ document.addEventListener('astro:page-load', () => {
   */
 
   m.addEventListener("touchstart", (e) => {
+    // Skip touch events during transitions to prevent WebGL conflicts
+    if (isTransitioning) return;
+    
     e.preventDefault();
     const touches = e.targetTouches;
     while (touches.length >= pointers.length)
@@ -1602,6 +1623,9 @@ document.addEventListener('astro:page-load', () => {
   m.addEventListener(
     "touchmove",
     (e) => {
+      // Skip touch events during transitions to prevent WebGL conflicts
+      if (isTransitioning) return;
+      
       e.preventDefault();
       const touches = e.targetTouches;
       for (let i = 0; i < touches.length; i++) {
@@ -1616,6 +1640,9 @@ document.addEventListener('astro:page-load', () => {
   );
 
   window.addEventListener("touchend", (e) => {
+    // Skip touch events during transitions to prevent WebGL conflicts
+    if (isTransitioning) return;
+    
     const touches = e.changedTouches;
     for (let i = 0; i < touches.length; i++) {
       let pointer = pointers.find((p) => p.id == touches[i].identifier);
