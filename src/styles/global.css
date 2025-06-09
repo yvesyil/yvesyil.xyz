@@ -124,6 +124,9 @@ strong {
   p, a, ul, blockquote {
     font-size: 3vmax;
   }
+  img {
+    max-width: 100%;
+  }
 }
 
 @keyframes vertical-slide-up-old {
