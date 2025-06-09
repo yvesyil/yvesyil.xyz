@@ -57,6 +57,13 @@ const { title, next, prev } = Astro.props;
 		max-width: 100%;
 		box-sizing: border-box;
 		overflow-y: auto;
+		/* Hide scrollbars while maintaining scroll functionality */
+		scrollbar-width: none; /* Firefox */
+		-ms-overflow-style: none; /* IE and Edge */
+	}
+
+	.section-body::-webkit-scrollbar {
+		display: none; /* Chrome, Safari and Opera */
 	}
 
 	.section-body > * {
