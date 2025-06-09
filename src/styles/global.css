@@ -29,14 +29,14 @@
 }
 
 :root {
-  --site-background: rgb(0, 0, 0);
-  --site-alt: rgb(61, 0, 0);
-  --site-default: rgb(149, 1, 1);
-  --site-light: rgb(250, 10, 10);
+  --site-background: rgb(10, 5, 5);
+  --site-alt: rgb(3, 2, 2);
+  --site-default: rgb(200, 150, 150);
+  --site-light: rgb(255, 255, 255);
 }
 
 ::-webkit-scrollbar {
-  background-color: #000;
+  background-color: var(--site-background);
   width: 0px;
 }
 
@@ -47,7 +47,7 @@
 
 html, body {
   width: 100%;
-  background-color: #000;
+  background-color: var(--site-background);
   font-size: 2.5vw;
   font-family: 'Yana', serif;
 }
@@ -93,7 +93,7 @@ ul {
 }
 
 blockquote {
-  border-left: 3px solid var(--site-default);
+  border-left: 3px solid var(--site-alt);
   padding-left: 1.5rem;
   margin: 2rem 0;
   font-style: italic;

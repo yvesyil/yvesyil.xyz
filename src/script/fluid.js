@@ -2,6 +2,13 @@ document.addEventListener('astro:page-load', () => {
   const m = document.querySelector('body');
   const canvas = document.getElementById("fluid");
   resizeCanvas();
+  
+  let style = window.getComputedStyle(m);
+  let backgroundColor = style.backgroundColor
+  backgroundColor = backgroundColor.substring(4, backgroundColor.length-1)
+    .replace(/ /g, '')
+    .split(',');
+  backgroundColor = { r: backgroundColor[0], g: backgroundColor[1], b: backgroundColor[2] };
 
   let config = {
     SIM_RESOLUTION: 256,
@@ -18,7 +25,7 @@ document.addEventListener('astro:page-load', () => {
     COLORFUL: true,
     COLOR_UPDATE_SPEED: 20,
     PAUSED: false,
-    BACK_COLOR: { r: 0, g: 0, b: 0 },
+    BACK_COLOR: backgroundColor,
     TRANSPARENT: false,
     BLOOM: false,
     BLOOM_ITERATIONS: 8,

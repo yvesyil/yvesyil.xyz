@@ -70,38 +70,6 @@ import { ViewTransitions } from 'astro:transitions';
 	body {
 		display: flex;
 		justify-content: center;
-		background-color: transparent;
-	}
-
-	.scroll-indicator {
-		position: fixed;
-		bottom: 20px;
-		right: 20px;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 5px;
-		z-index: 1000;
-		opacity: 0.6;
-		transition: opacity 0.3s ease;
-		pointer-events: none;
-	}
-
-	.scroll-indicator:hover {
-		opacity: 1;
-	}
-
-	.scroll-text {
-		font-size: 1.2vmin;
-		color: rgba(255, 255, 255, 0.7);
-		font-family: 'Yana', serif;
-		text-align: center;
-	}
-
-	.scroll-arrow {
-		font-size: 2vmin;
-		color: rgba(255, 255, 255, 0.7);
-		animation: pulse 2s infinite;
 	}
 
 	@keyframes pulse {
