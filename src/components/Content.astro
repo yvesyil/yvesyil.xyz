@@ -26,6 +26,7 @@ const { title, next, prev } = Astro.props;
 		align-items: flex-end;
 		overflow: hidden;
 		padding-left: 10rem;
+		padding-right: 5rem;
 	}
 
 	main > div {
@@ -68,6 +69,11 @@ const { title, next, prev } = Astro.props;
 
 	.section-body > * {
 		flex-shrink: 0;
+		/* Prevent horizontal overflow of any content */
+		max-width: 100%;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+		box-sizing: border-box;
 	}
 
 	.section-body > h1 {
@@ -109,6 +115,11 @@ const { title, next, prev } = Astro.props;
       width: 0px !important;
       height: 0px !important;
     }
+
+	main {
+		padding-left: 8rem;
+		padding-right: 3rem;
+	}
     
     /* Ensure content fits within viewport on mobile */
     main > div {
