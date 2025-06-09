@@ -60,7 +60,7 @@ export default function Reader() {
             border: 'none',
             outline: 'none',
             background: 'transparent',
-            color: 'var(--site-red)',
+            color: 'var(--site-light)',
             fontSize: windowWidth > 2560 ? '1.5rem' :
                      windowWidth > 1920 ? '2rem' :
                      isMobile ? '4rem' : '3rem',
@@ -176,7 +176,7 @@ export default function Reader() {
                 <div style={{
                     width: `${progress}%`,
                     height: '100%',
-                    background: 'var(--site-red)',
+                    background: 'var(--site-light)',
                     transition: 'width 0.2s ease-in-out'
                 }} />
             </div>

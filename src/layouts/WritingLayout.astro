@@ -39,18 +39,55 @@ import { ViewTransitions } from 'astro:transitions';
 
 	body {
         background-color: transparent;
-		height: 110vh;
+        min-height: 100vh;
         display: flex;
         justify-content: center;
-        overflow-y: hidden;
+        overflow-y: auto;
     }
 
     .container {
-        text-align: center;
+        text-align: left;
         font-size: 1.5rem;
-        top: 2vh;
-        padding: 2rem;
+        padding: 4rem 2rem;
         box-sizing: border-box;
-        overflow-y: auto;
+        max-width: 1500px;
+        width: 100%;
+        line-height: 1.6;
+    }
+
+    .container h1 {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .container p {
+        margin-bottom: 1.5rem;
+        text-align: justify;
+    }
+
+    
+
+    .container ul, .container ol {
+        margin-bottom: 1.5rem;
+        padding-left: 2rem;
+    }
+
+    .container li {
+        margin-bottom: 0.5rem;
+        color: var(--site-default);
+    }
+
+    .container code {
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 0.2rem 0.4rem;
+        border-radius: 3px;
+        font-family: monospace;
+    }
+
+    @media screen and (max-width: 900px) {
+        .container {
+            padding: 2rem 1rem;
+            font-size: 1.2rem;
+        }
     }
 </style>
