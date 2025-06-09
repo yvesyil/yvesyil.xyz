@@ -94,4 +94,34 @@ const { title, next, prev } = Astro.props;
       min-height: 500px;
     }
   }
+
+  /* Mobile Safari specific scrollbar hiding */
+  @media (pointer: none), (pointer: coarse), (hover: none) {
+    main, main > div, .section-body {
+      scrollbar-width: none !important; /* Firefox */
+      -ms-overflow-style: none !important; /* IE and Edge */
+    }
+    
+    main::-webkit-scrollbar, 
+    main > div::-webkit-scrollbar, 
+    .section-body::-webkit-scrollbar {
+      display: none !important; /* Chrome, Safari and Opera */
+      width: 0px !important;
+      height: 0px !important;
+    }
+    
+    /* Ensure content fits within viewport on mobile */
+    main > div {
+      width: 90vw;
+      height: 85vh;
+      max-height: 85vh;
+    }
+    
+    .section-body {
+      height: 70vh;
+      max-height: 70vh;
+      min-height: unset;
+      overflow-y: auto;
+    }
+  }
 </style>

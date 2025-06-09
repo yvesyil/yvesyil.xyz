@@ -79,6 +79,13 @@ import { ViewTransitions } from 'astro:transitions';
 		height: 100%;
 		/* Prevent horizontal scroll */
 		overflow-x: hidden;
+		/* Hide scrollbars globally */
+		scrollbar-width: none; /* Firefox */
+		-ms-overflow-style: none; /* IE and Edge */
+	}
+
+	html::-webkit-scrollbar {
+		display: none; /* Chrome, Safari and Opera */
 	}
 
 	body {
@@ -100,6 +107,23 @@ import { ViewTransitions } from 'astro:transitions';
 		overflow-x: hidden;
 		/* Fix positioning relative to viewport */
 		position: relative;
+		/* Hide scrollbars */
+		scrollbar-width: none; /* Firefox */
+		-ms-overflow-style: none; /* IE and Edge */
+	}
+
+	body::-webkit-scrollbar {
+		display: none; /* Chrome, Safari and Opera */
+	}
+
+	/* Global scrollbar hiding for all elements */
+	*::-webkit-scrollbar {
+		display: none;
+	}
+
+	* {
+		scrollbar-width: none; /* Firefox */
+		-ms-overflow-style: none; /* IE and Edge */
 	}
 
 	#fluid {
