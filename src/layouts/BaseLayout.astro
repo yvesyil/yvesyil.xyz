@@ -25,7 +25,7 @@ const customTransition = {
 ---
 
 <!doctype html>
-<html transition:animate={customTransition} lang="en">
+<html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content="❤️‍🔥" />
@@ -38,10 +38,28 @@ const customTransition = {
 		<ViewTransitions />
 	</head>
 	<body>
-		<slot />
+		<div class="page-content" transition:animate={customTransition}>
+			<slot />
+		</div>
 		<canvas id="fluid"></canvas>
+		
+		<!-- Page Navigation Dots -->
+		<div id="page-dots" class="page-dots">
+			<div class="dot" data-page="/" title="Home"></div>
+			<div class="dot" data-page="/whoami/" title="Who Am I?"></div>
+			<div class="dot" data-page="/projects/" title="Projects"></div>
+			<div class="dot" data-page="/writings/" title="Writings"></div>
+			<div class="dot" data-page="/contact/" title="Contact"></div>
+		</div>
+		
 		<script src="../script/fluid.js"></script>
 		<script>
+			// Import navigate function for dot navigation
+			import { navigate } from 'astro:transitions/client';
+			
+			// Page order for dot navigation
+			const pageOrder = ['/', '/whoami/', '/projects/', '/writings/', '/contact/'];
+			
 			// Function to show/hide scroll indicator based on content navigation availability
 			function updateScrollIndicator() {
 				const scrollIndicator = document.getElementById('scroll-indicator');
@@ -64,9 +82,48 @@ const customTransition = {
 				document.documentElement.scrollTop = 0;
 			}
 
+			// Function to update page dots based on current page
+			function updatePageDots() {
+				const currentPath = window.location.pathname;
+				const dots = document.querySelectorAll('.dot');
+				
+				dots.forEach(dot => {
+					const dotPage = dot.getAttribute('data-page');
+					if (dotPage === currentPath) {
+						dot.classList.add('active');
+					} else {
+						dot.classList.remove('active');
+					}
+				});
+			}
+
+			// Function to setup dot navigation
+			function setupDotNavigation() {
+				const dots = document.querySelectorAll('.dot');
+				
+				dots.forEach(dot => {
+					dot.addEventListener('click', async (e) => {
+						e.preventDefault();
+						const targetPage = dot.getAttribute('data-page');
+						const currentPath = window.location.pathname;
+						
+						// Don't navigate if no target page or already on the page
+						if (!targetPage || targetPage === currentPath) return;
+						
+						try {
+							await navigate(targetPage);
+						} catch (error) {
+							console.error('Dot navigation error:', error);
+						}
+					});
+				});
+			}
+
 			// Initialize on first load
 			updateScrollIndicator();
 			resetScrollPosition();
+			updatePageDots();
+			setupDotNavigation();
 
 			// Handle before page swap
 			document.addEventListener('astro:before-swap', () => {
@@ -78,6 +135,8 @@ const customTransition = {
 				setTimeout(() => {
 					updateScrollIndicator();
 					resetScrollPosition();
+					updatePageDots();
+					setupDotNavigation();
 					// Trigger a resize event to help fluid canvas re-initialize
 					window.dispatchEvent(new Event('resize'));
 				}, 100);
@@ -136,6 +195,18 @@ const customTransition = {
 		display: none; /* Chrome, Safari and Opera */
 	}
 
+	/* Page content container - inherits body styles but gets transitions */
+	.page-content {
+		width: 100%;
+		height: 100vh;
+		height: -webkit-fill-available;
+		display: flex;
+		justify-content: center;
+		position: relative;
+	}
+
+	
+
 	/* Global scrollbar hiding for all elements */
 	*::-webkit-scrollbar {
 		display: none;
@@ -154,6 +225,42 @@ const customTransition = {
 		left: 0;
 		height: 100%;
 		width: 100%;
+	}
+
+	/* Page Dots Navigation */
+	.page-dots {
+		position: fixed;
+		right: 2rem;
+		top: 50%;
+		transform: translateY(-50%);
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		z-index: 100;
+	}
+
+	.dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background-color: var(--site-alt);
+		border: 2px solid transparent;
+		cursor: pointer;
+		transition: all 0.3s ease;
+		opacity: 0.6;
+	}
+
+	.dot:hover {
+		opacity: 1;
+		transform: scale(1.2);
+		background-color: var(--site-default);
+	}
+
+	.dot.active {
+		background-color: var(--site-light);
+		border-color: var(--site-default);
+		opacity: 1;
+		transform: scale(1.3);
 	}
 
 	@keyframes pulse {
@@ -180,20 +287,29 @@ const customTransition = {
 		.scroll-arrow {
 			font-size: 16px;
 		}
+
+		/* Mobile optimizations for dots */
+		.page-dots {
+			right: 1rem;
+			gap: 1.2rem;
+		}
+
+		.dot {
+			width: 14px;
+			height: 14px;
+		}
 	}
 
 	@media screen and (max-width: 900px) {
-		.scroll-indicator {
-			bottom: 15px;
-			right: 15px;
+		/* Mobile dot positioning */
+		.page-dots {
+			right: 1rem;
+			gap: 1.5rem;
 		}
-		
-		.scroll-text {
-			font-size: 11px;
-		}
-		
-		.scroll-arrow {
-			font-size: 14px;
+
+		.dot {
+			width: 13px;
+			height: 13px;
 		}
 	}
 </style>
