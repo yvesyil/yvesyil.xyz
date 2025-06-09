@@ -201,14 +201,16 @@ const { title, next, prev } = Astro.props;
 		height: 100%;
 		position: fixed;
 		display: flex;
-		justify-content: center;
-		align-items: center;
+		justify-content: flex-start;
+		align-items: flex-end;
 		overflow: hidden;
+		padding-left: 10rem;
 	}
 
 	main > div {
 		display: flex;
 		align-items: left;
+		justify-content: flex-start;
 		flex-direction: column;
 		width: 70vw;
 		height: 70vh;
@@ -220,21 +222,20 @@ const { title, next, prev } = Astro.props;
 		top: 0;
 		position: relative;
 		flex-shrink: 0;
+		margin: 0;
 	}
 
 	.section-body {
+		padding-left: 1.5rem;
 		display: flex; 
 		flex-direction: column; 
-		justify-content: flex-start;
-		align-items: stretch;
+		justify-content: start;
+		align-items: flex-start;
 		position: relative;
-		height: 60vh;
 		min-height: 400px;
 		max-width: 100%;
 		box-sizing: border-box;
 		overflow-y: auto;
-		top: 2vh;
-		gap: 1rem;
 	}
 
 	.section-body > * {
@@ -263,7 +264,6 @@ const { title, next, prev } = Astro.props;
     .section-body {
       height: 75vh;
       min-height: 500px;
-	  padding: 25px;
     }
   }
 </style>

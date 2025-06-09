@@ -19,10 +19,6 @@ import { ViewTransitions } from 'astro:transitions';
 	</head>
 	<body>
 		<slot />
-		<div class="scroll-indicator" id="scroll-indicator">
-			<div class="scroll-text">Scroll to navigate</div>
-			<div class="scroll-arrow">↕</div>
-		</div>
 		<canvas id="fluid"></canvas>
 		<script src="../script/fluid.js"></script>
 		<script>

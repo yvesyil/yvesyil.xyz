@@ -30,7 +30,7 @@
 
 :root {
   --site-background: rgb(10, 5, 5);
-  --site-alt: rgb(3, 2, 2);
+  --site-alt: rgb(100, 50, 50);
   --site-default: rgb(200, 150, 150);
   --site-light: rgb(255, 255, 255);
 }
@@ -50,6 +50,7 @@ html, body {
   background-color: var(--site-background);
   font-size: 2.5vw;
   font-family: 'Yana', serif;
+  color: var(--site-default);
 }
 
 h1 {
@@ -93,6 +94,7 @@ ul {
 }
 
 blockquote {
+  font-size: 2.8vmin;
   border-left: 3px solid var(--site-alt);
   padding-left: 1.5rem;
   margin: 2rem 0;
@@ -115,7 +117,7 @@ strong {
   h3 {
     font-size: 4vmax;
   }
-  p, a, ul {
+  p, a, ul, blockquote {
     font-size: 3vmax;
   }
 }

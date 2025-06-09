@@ -7,7 +7,7 @@ import Content from '../components/Content.astro';
 <BaseLayout>
 	<Content next="whoami" prev="contact">
 			<h1 style="text-align: center;"><span style="font-variant-alternates: styleset(ss02);">Y</span>ves yil</h1>
-			<p>IPA: <a style="font-family: Garamond, serif;" href="http://ipa-reader.xyz/?text=iv%20j%C9%AAl">/iv jɪl/</a> Eng: [eev yil]</p>
+			<span class="subtext">IPA: <a style="font-family: Garamond, serif;" href="http://ipa-reader.xyz/?text=iv%20j%C9%AAl">/iv jɪl/</a> Eng: [eev yil]</span>
 	</Content>
 </BaseLayout>
 
@@ -16,7 +16,7 @@ import Content from '../components/Content.astro';
 		font-size: 7vmin;
 	}
 
-	p, a {
+	.subtext, .subtext * {
 		font-size: 2vmin;
 	}
 
@@ -30,8 +30,8 @@ import Content from '../components/Content.astro';
 		h1 {
 			font-size: 8vmax;
 		}
-		p, a {
-			font-size: 2.5vmax;
+		.subtext, .subtext * {
+			font-size: 2vmax;
 		}
 	}
 </style>
