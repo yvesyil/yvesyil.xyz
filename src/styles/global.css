@@ -86,7 +86,6 @@ a {
 }
 
 ul {
-  line-height: 2rem;
   font-size: 2.8vmin;
   list-style-position: outside;
   color: var(--site-default);
@@ -97,9 +96,15 @@ blockquote {
   font-size: 2.8vmin;
   border-left: 3px solid var(--site-alt);
   padding-left: 1.5rem;
-  margin: 2rem 0;
   font-style: italic;
   color: var(--site-light);
+}
+
+img {
+  max-width: 50%;
+  height: auto;
+  margin: 0 auto;
+  display: block;
 }
 
 strong {
