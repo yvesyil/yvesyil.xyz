@@ -1,0 +1,56 @@
+---
+import { fade } from 'astro/virtual-modules/transitions.js';
+import '../styles/global.css';
+import { ViewTransitions } from 'astro:transitions';
+---
+
+<!doctype html style="overscroll-behavior-y: none;">
+<html transition:animate={fade({ duration: '0.8s' })} lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="yvesyil" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+    <link rel="preload" href="/fonts/yana/regular.woff" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="/fonts/yana/italic.woff" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="/fonts/yana/bold.woff" as="font" type="font/woff" crossorigin>
+		<title>yvesyil</title>
+		<ViewTransitions />
+	</head>
+	<body>
+        <div class="container">
+            <slot />
+        </div>
+		<canvas id="fluid"></canvas>
+		<script src="../script/fluid.js"></script>
+	</body>
+</html>
+
+<style>
+	#fluid {
+		z-index: -100;
+        margin: 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+	}
+
+	body {
+        background-color: transparent;
+		height: 110vh;
+        display: flex;
+        justify-content: center;
+        overflow-y: hidden;
+    }
+
+    .container {
+        text-align: center;
+        font-size: 1.5rem;
+        top: 2vh;
+        padding: 2rem;
+        box-sizing: border-box;
+        overflow-y: auto;
+    }
+</style>

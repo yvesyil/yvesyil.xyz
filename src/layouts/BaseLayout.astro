@@ -5,7 +5,7 @@ import { ViewTransitions } from 'astro:transitions';
 ---
 
 <!doctype html style="overscroll-behavior-y: none;">
-<html transition:animate={fade({ duration: '0.8s' })} lang="en">
+<html transition:animate={fade({ duration: '0.5s' })} lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content="yvesyil" />
@@ -19,33 +19,129 @@ import { ViewTransitions } from 'astro:transitions';
 	</head>
 	<body>
 		<slot />
+		<div class="scroll-indicator" id="scroll-indicator">
+			<div class="scroll-text">Scroll to navigate</div>
+			<div class="scroll-arrow">↕</div>
+		</div>
 		<canvas id="fluid"></canvas>
 		<script src="../script/fluid.js"></script>
+		<script>
+			// Function to show/hide scroll indicator based on content navigation availability
+			function updateScrollIndicator() {
+				const scrollIndicator = document.getElementById('scroll-indicator');
+				const contentElement = document.querySelector('.content-navigation-enabled');
+				
+				if (scrollIndicator) {
+					if (contentElement) {
+						scrollIndicator.style.display = 'flex';
+					} else {
+						scrollIndicator.style.display = 'none';
+					}
+				}
+			}
+
+			// Update on initial load
+			updateScrollIndicator();
+
+			// Update after page transitions
+			document.addEventListener('astro:page-load', () => {
+				setTimeout(updateScrollIndicator, 50);
+			});
+		</script>
 	</body>
 </html>
 
 <style>
+	* {
+		margin: 0;
+		padding: 0;
+	}
+
 	#fluid {
 		z-index: -100;
-    margin: 0;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
+		margin: 0;
+		position: fixed;
+		top: 0;
+		left: 0;
+		height: 100%;
+		width: 100%;
 	}
 
 	body {
-    display: flex;
-    justify-content: center;
-    background-color: transparent;
-		height: 110vh;
-  }
+		display: flex;
+		justify-content: center;
+		background-color: transparent;
+	}
+
+	.scroll-indicator {
+		position: fixed;
+		bottom: 20px;
+		right: 20px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 5px;
+		z-index: 1000;
+		opacity: 0.6;
+		transition: opacity 0.3s ease;
+		pointer-events: none;
+	}
+
+	.scroll-indicator:hover {
+		opacity: 1;
+	}
+
+	.scroll-text {
+		font-size: 1.2vmin;
+		color: rgba(255, 255, 255, 0.7);
+		font-family: 'Yana', serif;
+		text-align: center;
+	}
+
+	.scroll-arrow {
+		font-size: 2vmin;
+		color: rgba(255, 255, 255, 0.7);
+		animation: pulse 2s infinite;
+	}
+
+	@keyframes pulse {
+		0%, 100% {
+			opacity: 0.7;
+			transform: scale(1);
+		}
+		50% {
+			opacity: 1;
+			transform: scale(1.1);
+		}
+	}
 
 	@media (pointer: none), (pointer: coarse), (hover: none) {
 		body {
 			height: 100vh;
 			height: -webkit-fill-available;
+		}
+		
+		.scroll-text {
+			font-size: 12px;
+		}
+		
+		.scroll-arrow {
+			font-size: 16px;
+		}
+	}
+
+	@media screen and (max-width: 900px) {
+		.scroll-indicator {
+			bottom: 15px;
+			right: 15px;
+		}
+		
+		.scroll-text {
+			font-size: 11px;
+		}
+		
+		.scroll-arrow {
+			font-size: 14px;
 		}
 	}
 </style>
