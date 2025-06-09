@@ -29,10 +29,10 @@
 }
 
 :root {
-  --site-background: rgb(10, 5, 5);
-  --site-alt: rgb(100, 50, 50);
-  --site-default: rgb(200, 150, 150);
-  --site-light: rgb(255, 255, 255);
+  --site-background: rgb(7, 10, 7);
+  --site-alt: rgb(90, 100, 100);
+  --site-default: rgb(190, 200, 205);
+  --site-light: rgb(255, 255, 235);
 }
 
 ::-webkit-scrollbar {
