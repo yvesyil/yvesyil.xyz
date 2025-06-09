@@ -4,12 +4,12 @@ import '../styles/global.css';
 import { ViewTransitions } from 'astro:transitions';
 ---
 
-<!doctype html style="overscroll-behavior-y: none;">
+<!doctype html>
 <html transition:animate={fade({ duration: '0.5s' })} lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="description" content="yvesyil" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
 		<meta name="generator" content={Astro.generator} />
     <link rel="preload" href="/fonts/yana/regular.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/yana/italic.woff2" as="font" type="font/woff2" crossorigin>
@@ -36,13 +36,28 @@ import { ViewTransitions } from 'astro:transitions';
 				}
 			}
 
+			// Function to manage scroll position for mobile Safari
+			function resetScrollPosition() {
+				// Reset scroll to top to prevent text jumping
+				window.scrollTo(0, 0);
+				document.body.scrollTop = 0;
+				document.documentElement.scrollTop = 0;
+			}
+
 			// Initialize on first load
 			updateScrollIndicator();
+			resetScrollPosition();
+
+			// Handle before page swap
+			document.addEventListener('astro:before-swap', () => {
+				resetScrollPosition();
+			});
 
 			// Re-initialize after page transitions
 			document.addEventListener('astro:page-load', () => {
 				setTimeout(() => {
 					updateScrollIndicator();
+					resetScrollPosition();
 					// Trigger a resize event to help fluid canvas re-initialize
 					window.dispatchEvent(new Event('resize'));
 				}, 100);
@@ -57,6 +72,36 @@ import { ViewTransitions } from 'astro:transitions';
 		padding: 0;
 	}
 
+	html {
+		/* Prevent overscroll/rubber band effect on mobile Safari */
+		overscroll-behavior-y: none;
+		/* Ensure consistent viewport height */
+		height: 100%;
+		/* Prevent horizontal scroll */
+		overflow-x: hidden;
+	}
+
+	body {
+		/* Prevent overscroll/rubber band effect */
+		overscroll-behavior-y: none;
+		/* Ensure consistent height on mobile Safari */
+		min-height: 100vh;
+		min-height: -webkit-fill-available;
+		/* Prevent text selection and context menus on mobile */
+		-webkit-user-select: none;
+		user-select: none;
+		-webkit-touch-callout: none;
+		/* Prevent momentum scrolling */
+		-webkit-overflow-scrolling: auto;
+		/* Center content */
+		display: flex;
+		justify-content: center;
+		/* Prevent horizontal scroll */
+		overflow-x: hidden;
+		/* Fix positioning relative to viewport */
+		position: relative;
+	}
+
 	#fluid {
 		z-index: -100;
 		margin: 0;
@@ -65,11 +110,6 @@ import { ViewTransitions } from 'astro:transitions';
 		left: 0;
 		height: 100%;
 		width: 100%;
-	}
-
-	body {
-		display: flex;
-		justify-content: center;
 	}
 
 	@keyframes pulse {

@@ -56,20 +56,44 @@ const handleWheel = debounce(async (event) => {
 // Handle touch events for mobile
 let touchStartY = 0;
 let touchEndY = 0;
+let touchStartX = 0;
+let touchEndX = 0;
+let touchStartTime = 0;
 
 const handleTouchStart = (event) => {
 	if (!shouldEnableNavigation()) return;
-	touchStartY = event.changedTouches[0].screenY;
+	
+	const touch = event.changedTouches[0];
+	touchStartY = touch.screenY;
+	touchStartX = touch.screenX;
+	touchStartTime = Date.now();
 };
 
 const handleTouchEnd = debounce(async (event) => {
 	if (isNavigating || !shouldEnableNavigation()) return;
 	
-	touchEndY = event.changedTouches[0].screenY;
-	const deltaY = touchStartY - touchEndY;
+	const touch = event.changedTouches[0];
+	touchEndY = touch.screenY;
+	touchEndX = touch.screenX;
 	
-	// Minimum swipe distance
-	if (Math.abs(deltaY) < 50) return;
+	const deltaY = touchStartY - touchEndY;
+	const deltaX = Math.abs(touchStartX - touchEndX);
+	const touchDuration = Date.now() - touchStartTime;
+	
+	// Only handle vertical swipes that are:
+	// 1. Primarily vertical (deltaX < deltaY)
+	// 2. Have sufficient distance (> 50px)
+	// 3. Are quick enough (< 500ms) to be intentional
+	// 4. Are not too quick (> 50ms) to avoid accidental triggers
+	if (Math.abs(deltaY) < 50 || 
+		deltaX > Math.abs(deltaY) || 
+		touchDuration > 500 || 
+		touchDuration < 50) {
+		return;
+	}
+	
+	// Prevent default behavior for our custom navigation
+	event.preventDefault();
 	
 	let targetIndex;
 	if (deltaY > 0) {
@@ -135,7 +159,7 @@ function attachListeners() {
 	
 	document.addEventListener('wheel', handleWheel, { passive: false });
 	document.addEventListener('touchstart', handleTouchStart, { passive: true });
-	document.addEventListener('touchend', handleTouchEnd, { passive: true });
+	document.addEventListener('touchend', handleTouchEnd, { passive: false });
 	document.addEventListener('keydown', handleKeyDown);
 	
 	listenersAttached = true;
