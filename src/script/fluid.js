@@ -10,7 +10,7 @@ document.addEventListener('astro:after-swap', () => {
   // Small delay to ensure canvas is properly initialized
   setTimeout(() => {
     isTransitioning = false;
-  }, 100);
+  }, 150);
 });
 
 document.addEventListener('astro:page-load', () => {
@@ -26,19 +26,19 @@ document.addEventListener('astro:page-load', () => {
   backgroundColor = { r: backgroundColor[0], g: backgroundColor[1], b: backgroundColor[2] };
 
   let config = {
-    SIM_RESOLUTION: 256,
-    DYE_RESOLUTION: 1440,
+    SIM_RESOLUTION: 512,
+    DYE_RESOLUTION: 512,
     CAPTURE_RESOLUTION: 512,
-    DENSITY_DISSIPATION: 3,
-    VELOCITY_DISSIPATION: 0.4,
-    PRESSURE: 0,
-    PRESSURE_ITERATIONS: 4,
-    CURL: 1,
-    SPLAT_RADIUS: 0.08,
-    SPLAT_FORCE: 6000,
-    SHADING: true,
+    DENSITY_DISSIPATION: 2,
+    VELOCITY_DISSIPATION: 0.1,
+    PRESSURE: 0.01,
+    PRESSURE_ITERATIONS: 20,
+    CURL: 100,
+    SPLAT_RADIUS: 0.13,
+    SPLAT_FORCE: 5000,
+    SHADING: false,
     COLORFUL: true,
-    COLOR_UPDATE_SPEED: 20,
+    COLOR_UPDATE_SPEED: 3,
     PAUSED: false,
     BACK_COLOR: backgroundColor,
     TRANSPARENT: false,
@@ -48,9 +48,9 @@ document.addEventListener('astro:page-load', () => {
     BLOOM_INTENSITY: 0.8,
     BLOOM_THRESHOLD: 0.6,
     BLOOM_SOFT_KNEE: 0.7,
-    SUNRAYS: false,
-    SUNRAYS_RESOLUTION: 196,
-    SUNRAYS_WEIGHT: 0.6
+    SUNRAYS: true,
+    SUNRAYS_RESOLUTION: 256,
+    SUNRAYS_WEIGHT: 0.5
   };
 
   function pointerPrototype() {
@@ -1699,8 +1699,8 @@ document.addEventListener('astro:page-load', () => {
 
   function generateColor() {
     let c = HSVtoRGB(Math.random(), 1.0, 1.0);
-    c.r *= 0.50;
-    c.g *= 0.02;
+    c.r *= 0.40;
+    c.g *= 0.01;
     c.b *= 0.10;
     return c;
   }
