@@ -54,7 +54,7 @@ html, body {
 }
 
 h1 {
-  font-size: 6vmin;
+  font-size: 15vmin;
   line-height: 1.2;
   color: var(--site-light);
 }
@@ -112,7 +112,7 @@ strong {
 
 @media screen and (max-width: 900px) {
   h1 {
-    font-size: 7vmax;
+    font-size: 10vmax;
     top: -200px;
   }
   h2 {
