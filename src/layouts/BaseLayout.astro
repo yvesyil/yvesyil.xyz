@@ -38,10 +38,12 @@ const customTransition = {
 		<ViewTransitions />
 	</head>
 	<body>
+		<!-- Canvas with transition:persist to prevent it from being affected by page transitions -->
+		<canvas id="fluid" transition:persist></canvas>
+		
 		<div class="page-content" transition:animate={customTransition}>
 			<slot />
 		</div>
-		<canvas id="fluid"></canvas>
 		
 		<!-- Page Navigation Dots -->
 		<div id="page-dots" class="page-dots">
@@ -132,14 +134,10 @@ const customTransition = {
 
 			// Re-initialize after page transitions
 			document.addEventListener('astro:page-load', () => {
-				setTimeout(() => {
-					updateScrollIndicator();
-					resetScrollPosition();
-					updatePageDots();
-					setupDotNavigation();
-					// Trigger a resize event to help fluid canvas re-initialize
-					window.dispatchEvent(new Event('resize'));
-				}, 100);
+				updateScrollIndicator();
+				resetScrollPosition();
+				updatePageDots();
+				setupDotNavigation();
 			});
 		</script>
 	</body>
@@ -225,6 +223,14 @@ const customTransition = {
 		left: 0;
 		height: 100%;
 		width: 100%;
+		pointer-events: none;
+		/* Prevent canvas from being affected by transitions */
+		transition: none !important;
+		transform: none !important;
+		/* Ensure canvas stays on its own compositing layer */
+		will-change: auto;
+		/* Prevent any layout shifts */
+		contain: layout style paint;
 	}
 
 	/* Page Dots Navigation */

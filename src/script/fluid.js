@@ -1,21 +1,141 @@
-// Global transition state management
-let isTransitioning = false;
+// Global variables to prevent multiple initializations
+let fluidInitialized = false;
+let canvas, gl, ext, m;
+let config, pointers, splatStack;
+let dye, velocity, divergence, curl, pressure, bloom, bloomFramebuffers, sunrays, sunraysTemp;
+let lastUpdateTime, colorUpdateTimer, startTime;
 
-// Set up global transition state listeners (only once)
-document.addEventListener('astro:before-preparation', () => {
-  isTransitioning = true;
-});
+// Global event handlers to allow proper removal
+let mouseMoveHandler, touchStartHandler, touchMoveHandler, touchEndHandler;
 
-document.addEventListener('astro:after-swap', () => {
-  // Small delay to ensure canvas is properly initialized
-  setTimeout(() => {
-    isTransitioning = false;
-  }, 150);
-});
+// Pointer prototype function
+function pointerPrototype() {
+  this.id = -1;
+  this.texcoordX = 0;
+  this.texcoordY = 0;
+  this.prevTexcoordX = 0;
+  this.prevTexcoordY = 0;
+  this.deltaX = 0;
+  this.deltaY = 0;
+  this.down = false;
+  this.moved = false;
+  this.color = [30, 0, 300];
+}
 
-document.addEventListener('astro:page-load', () => {
-  const m = document.querySelector('body');
-  const canvas = document.getElementById("fluid");
+// Helper functions for event handlers
+function scaleByPixelRatio(input) {
+  let pixelRatio = window.devicePixelRatio || 1;
+  return Math.floor(input * pixelRatio);
+}
+
+function updatePointerDownData(pointer, id, posX, posY) {
+  if (!canvas) return;
+  pointer.id = id;
+  pointer.down = true;
+  pointer.moved = false;
+  pointer.texcoordX = posX / canvas.width;
+  pointer.texcoordY = 1.0 - posY / canvas.height;
+  pointer.prevTexcoordX = pointer.texcoordX;
+  pointer.prevTexcoordY = pointer.texcoordY;
+  pointer.deltaX = 0;
+  pointer.deltaY = 0;
+  pointer.color = generateColor();
+}
+
+function updatePointerMoveData(pointer, posX, posY) {
+  if (!canvas) return;
+  pointer.prevTexcoordX = pointer.texcoordX;
+  pointer.prevTexcoordY = pointer.texcoordY;
+  pointer.texcoordX = posX / canvas.width;
+  pointer.texcoordY = 1.0 - posY / canvas.height;
+  pointer.deltaX = correctDeltaX(pointer.texcoordX - pointer.prevTexcoordX);
+  pointer.deltaY = correctDeltaY(pointer.texcoordY - pointer.prevTexcoordY);
+  pointer.moved = Math.abs(pointer.deltaX) > 0 || Math.abs(pointer.deltaY) > 0;
+}
+
+function updatePointerUpData(pointer) {
+  pointer.down = false;
+}
+
+function correctDeltaX(delta) {
+  if (!canvas) return delta;
+  let aspectRatio = canvas.width / canvas.height;
+  if (aspectRatio < 1) delta *= aspectRatio;
+  return delta;
+}
+
+function correctDeltaY(delta) {
+  if (!canvas) return delta;
+  let aspectRatio = canvas.width / canvas.height;
+  if (aspectRatio > 1) delta /= aspectRatio;
+  return delta;
+}
+
+function generateColor() {
+  let c = HSVtoRGB(Math.random(), 1.0, 1.0);
+  c.r *= 0.40;
+  c.g *= 0.01;
+  c.b *= 0.10;
+  return c;
+}
+
+function HSVtoRGB(h, s, v) {
+  let r, g, b, i, f, p, q, t;
+  i = Math.floor(h * 6);
+  f = h * 6 - i;
+  p = v * (1 - s);
+  q = v * (1 - f * s);
+  t = v * (1 - (1 - f) * s);
+
+  switch (i % 6) {
+    case 0:
+      (r = v), (g = t), (b = p);
+      break;
+    case 1:
+      (r = q), (g = v), (b = p);
+      break;
+    case 2:
+      (r = p), (g = v), (b = t);
+      break;
+    case 3:
+      (r = p), (g = q), (b = v);
+      break;
+    case 4:
+      (r = t), (g = p), (b = v);
+      break;
+    case 5:
+      (r = v), (g = p), (b = q);
+      break;
+  }
+
+  return {
+    r,
+    g,
+    b
+  };
+}
+
+// Initialize fluid simulation only once
+function initFluidSimulation() {
+  if (fluidInitialized) {
+    console.log('Fluid already initialized, skipping WebGL setup...');
+    // Re-attach event listeners even if WebGL is already initialized
+    attachEventListeners();
+    return;
+  }
+  
+  console.log('Initializing fluid simulation...');
+  
+  m = document.querySelector('body');
+  canvas = document.getElementById("fluid");
+  
+  if (!canvas) {
+    console.error('Fluid canvas not found');
+    return;
+  }
+  
+  console.log('Canvas found:', canvas);
+  
   resizeCanvas();
   
   let style = window.getComputedStyle(m);
@@ -25,7 +145,7 @@ document.addEventListener('astro:page-load', () => {
     .split(',');
   backgroundColor = { r: backgroundColor[0], g: backgroundColor[1], b: backgroundColor[2] };
 
-  let config = {
+  config = {
     SIM_RESOLUTION: 512,
     DYE_RESOLUTION: 512,
     CAPTURE_RESOLUTION: 512,
@@ -53,24 +173,16 @@ document.addEventListener('astro:page-load', () => {
     SUNRAYS_WEIGHT: 0.5
   };
 
-  function pointerPrototype() {
-    this.id = -1;
-    this.texcoordX = 0;
-    this.texcoordY = 0;
-    this.prevTexcoordX = 0;
-    this.prevTexcoordY = 0;
-    this.deltaX = 0;
-    this.deltaY = 0;
-    this.down = false;
-    this.moved = false;
-    this.color = [30, 0, 300];
-  }
-
-  let pointers = [];
-  let splatStack = [];
+  pointers = [];
+  splatStack = [];
   pointers.push(new pointerPrototype());
+  
+  // Initialize arrays
+  bloomFramebuffers = [];
 
-  const { gl, ext } = getWebGLContext(canvas);
+  const webglContext = getWebGLContext(canvas);
+  gl = webglContext.gl;
+  ext = webglContext.ext;
 
   //startGUI();
 
@@ -932,17 +1044,22 @@ document.addEventListener('astro:page-load', () => {
       console.trace("Framebuffer error: " + status);
   }
 
-  let dye;
-  let velocity;
-  let divergence;
-  let curl;
-  let pressure;
-  let bloom;
-  let bloomFramebuffers = [];
-  let sunrays;
-  let sunraysTemp;
-
-  //let ditheringTexture = createTextureAsync("LDR_LLL1_0.png");
+  // Create a simple white texture for dithering since the original is commented out
+  let ditheringTexture = {
+    texture: null,
+    width: 1,
+    height: 1,
+    attach(id) {
+      if (!this.texture) {
+        this.texture = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255]));
+      }
+      gl.activeTexture(gl.TEXTURE0 + id);
+      gl.bindTexture(gl.TEXTURE_2D, this.texture);
+      return id;
+    }
+  };
 
   const blurProgram = new Program(blurVertexShader, blurShader);
   const copyProgram = new Program(baseVertexShader, copyShader);
@@ -1261,9 +1378,9 @@ document.addEventListener('astro:page-load', () => {
   initFramebuffers();
   //multipleSplats(parseInt(Math.random() * 20) + 5);
 
-  let lastUpdateTime = Date.now();
-  let colorUpdateTimer = 0.0;
-  let startTime = Date.now(); // Add start time for grain animation
+  lastUpdateTime = Date.now();
+  colorUpdateTimer = 0.0;
+  startTime = Date.now(); // Add start time for grain animation
   update();
 
   function update() {
@@ -1628,9 +1745,7 @@ document.addEventListener('astro:page-load', () => {
   */
 
   m.addEventListener("mousemove", (e) => {
-    // Skip mouse events during transitions to prevent WebGL conflicts
-    if (isTransitioning) return;
-    
+    if (!pointers || !pointers[0]) return;
     let pointer = pointers[0];
     //if (pointer.down) return;
     let posX = scaleByPixelRatio(e.clientX);
@@ -1645,10 +1760,8 @@ document.addEventListener('astro:page-load', () => {
   */
 
   m.addEventListener("touchstart", (e) => {
-    // Skip touch events during transitions to prevent WebGL conflicts
-    if (isTransitioning) return;
-    
     e.preventDefault();
+    if (!pointers) return;
     const touches = e.targetTouches;
     while (touches.length >= pointers.length)
       pointers.push(new pointerPrototype());
@@ -1662,14 +1775,12 @@ document.addEventListener('astro:page-load', () => {
   m.addEventListener(
     "touchmove",
     (e) => {
-      // Skip touch events during transitions to prevent WebGL conflicts
-      if (isTransitioning) return;
-      
       e.preventDefault();
+      if (!pointers) return;
       const touches = e.targetTouches;
       for (let i = 0; i < touches.length; i++) {
         let pointer = pointers[i + 1];
-        if (!pointer.down) continue;
+        if (!pointer || !pointer.down) continue;
         let posX = scaleByPixelRatio(touches[i].clientX);
         let posY = scaleByPixelRatio(touches[i].clientY);
         updatePointerMoveData(pointer, posX, posY);
@@ -1679,9 +1790,7 @@ document.addEventListener('astro:page-load', () => {
   );
 
   window.addEventListener("touchend", (e) => {
-    // Skip touch events during transitions to prevent WebGL conflicts
-    if (isTransitioning) return;
-    
+    if (!pointers) return;
     const touches = e.changedTouches;
     for (let i = 0; i < touches.length; i++) {
       let pointer = pointers.find((p) => p.id == touches[i].identifier);
@@ -1696,89 +1805,6 @@ document.addEventListener('astro:page-load', () => {
     if (e.key === " ") splatStack.push(parseInt(Math.random() * 20) + 5);
   });
   */
-
-  function updatePointerDownData(pointer, id, posX, posY) {
-    pointer.id = id;
-    pointer.down = true;
-    pointer.moved = false;
-    pointer.texcoordX = posX / canvas.width;
-    pointer.texcoordY = 1.0 - posY / canvas.height;
-    pointer.prevTexcoordX = pointer.texcoordX;
-    pointer.prevTexcoordY = pointer.texcoordY;
-    pointer.deltaX = 0;
-    pointer.deltaY = 0;
-    pointer.color = generateColor();
-  }
-
-  function updatePointerMoveData(pointer, posX, posY) {
-    pointer.prevTexcoordX = pointer.texcoordX;
-    pointer.prevTexcoordY = pointer.texcoordY;
-    pointer.texcoordX = posX / canvas.width;
-    pointer.texcoordY = 1.0 - posY / canvas.height;
-    pointer.deltaX = correctDeltaX(pointer.texcoordX - pointer.prevTexcoordX);
-    pointer.deltaY = correctDeltaY(pointer.texcoordY - pointer.prevTexcoordY);
-    pointer.moved = Math.abs(pointer.deltaX) > 0 || Math.abs(pointer.deltaY) > 0;
-  }
-
-  function updatePointerUpData(pointer) {
-    pointer.down = false;
-  }
-
-  function correctDeltaX(delta) {
-    let aspectRatio = canvas.width / canvas.height;
-    if (aspectRatio < 1) delta *= aspectRatio;
-    return delta;
-  }
-
-  function correctDeltaY(delta) {
-    let aspectRatio = canvas.width / canvas.height;
-    if (aspectRatio > 1) delta /= aspectRatio;
-    return delta;
-  }
-
-  function generateColor() {
-    let c = HSVtoRGB(Math.random(), 1.0, 1.0);
-    c.r *= 0.40;
-    c.g *= 0.01;
-    c.b *= 0.10;
-    return c;
-  }
-
-  function HSVtoRGB(h, s, v) {
-    let r, g, b, i, f, p, q, t;
-    i = Math.floor(h * 6);
-    f = h * 6 - i;
-    p = v * (1 - s);
-    q = v * (1 - f * s);
-    t = v * (1 - (1 - f) * s);
-
-    switch (i % 6) {
-      case 0:
-        (r = v), (g = t), (b = p);
-        break;
-      case 1:
-        (r = q), (g = v), (b = p);
-        break;
-      case 2:
-        (r = p), (g = v), (b = t);
-        break;
-      case 3:
-        (r = p), (g = q), (b = v);
-        break;
-      case 4:
-        (r = t), (g = p), (b = v);
-        break;
-      case 5:
-        (r = v), (g = p), (b = q);
-        break;
-    }
-
-    return {
-      r,
-      g,
-      b
-    };
-  }
 
   function normalizeColor(input) {
     let output = {
@@ -1814,11 +1840,6 @@ document.addEventListener('astro:page-load', () => {
     };
   }
 
-  function scaleByPixelRatio(input) {
-    let pixelRatio = window.devicePixelRatio || 1;
-    return Math.floor(input * pixelRatio);
-  }
-
   function hashCode(s) {
     if (s.length == 0) return 0;
     let hash = 0;
@@ -1828,4 +1849,120 @@ document.addEventListener('astro:page-load', () => {
     }
     return hash;
   }
+
+  fluidInitialized = true;
+  console.log('Fluid simulation initialized successfully!');
+}
+
+// Separate function to handle event listeners that need to be re-attached on each page load
+function attachEventListeners() {
+  console.log('Attaching event listeners...');
+  
+  // Ensure we have the current body element and canvas
+  m = document.querySelector('body');
+  canvas = document.getElementById("fluid");
+  
+  if (!m || !canvas) {
+    console.error('Body or canvas not found for event listeners');
+    return;
+  }
+
+  // Remove existing listeners if they exist
+  if (mouseMoveHandler) {
+    m.removeEventListener("mousemove", mouseMoveHandler);
+  }
+  if (touchStartHandler) {
+    m.removeEventListener("touchstart", touchStartHandler);
+  }
+  if (touchMoveHandler) {
+    m.removeEventListener("touchmove", touchMoveHandler);
+  }
+  if (touchEndHandler) {
+    window.removeEventListener("touchend", touchEndHandler);
+  }
+
+  // Define event handlers
+  mouseMoveHandler = (e) => {
+    if (!pointers || !pointers[0]) return;
+    let pointer = pointers[0];
+    let posX = scaleByPixelRatio(e.clientX);
+    let posY = scaleByPixelRatio(e.clientY);
+    updatePointerMoveData(pointer, posX, posY);
+  };
+
+  touchStartHandler = (e) => {
+    e.preventDefault();
+    if (!pointers) return;
+    const touches = e.targetTouches;
+    while (touches.length >= pointers.length)
+      pointers.push(new pointerPrototype());
+    for (let i = 0; i < touches.length; i++) {
+      let posX = scaleByPixelRatio(touches[i].clientX);
+      let posY = scaleByPixelRatio(touches[i].clientY);
+      updatePointerDownData(pointers[i + 1], touches[i].identifier, posX, posY);
+    }
+  };
+
+  touchMoveHandler = (e) => {
+    e.preventDefault();
+    if (!pointers) return;
+    const touches = e.targetTouches;
+    for (let i = 0; i < touches.length; i++) {
+      let pointer = pointers[i + 1];
+      if (!pointer || !pointer.down) continue;
+      let posX = scaleByPixelRatio(touches[i].clientX);
+      let posY = scaleByPixelRatio(touches[i].clientY);
+      updatePointerMoveData(pointer, posX, posY);
+    }
+  };
+
+  touchEndHandler = (e) => {
+    if (!pointers) return;
+    const touches = e.changedTouches;
+    for (let i = 0; i < touches.length; i++) {
+      let pointer = pointers.find((p) => p.id == touches[i].identifier);
+      if (pointer == null) continue;
+      updatePointerUpData(pointer);
+    }
+  };
+
+  // Add new event listeners
+  m.addEventListener("mousemove", mouseMoveHandler);
+  m.addEventListener("touchstart", touchStartHandler);
+  m.addEventListener("touchmove", touchMoveHandler, false);
+  window.addEventListener("touchend", touchEndHandler);
+
+  console.log('Event listeners attached successfully!');
+}
+
+// Initialize on first load and page transitions
+document.addEventListener('astro:page-load', () => {
+  // Small delay to ensure DOM is ready
+  setTimeout(() => {
+    initFluidSimulation();
+    // Always attach event listeners on page load
+    setTimeout(() => {
+      attachEventListeners();
+    }, 100);
+  }, 50);
 });
+
+// Also initialize immediately if DOM is already loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      initFluidSimulation();
+      setTimeout(() => {
+        attachEventListeners();
+      }, 100);
+    }, 50);
+  });
+} else {
+  // DOM is already loaded
+  setTimeout(() => {
+    initFluidSimulation();
+    setTimeout(() => {
+      attachEventListeners();
+    }, 100);
+  }, 50);
+}
