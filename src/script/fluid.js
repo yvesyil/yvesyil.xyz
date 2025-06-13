@@ -635,9 +635,58 @@ function initFluidSimulation() {
       uniform vec2 texelSize;
       uniform float uTime;
       
-      // Grain/noise function
-      float random(vec2 st) {
-          return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+      // Better grain/noise functions with multiple hash approaches
+      float hash12(vec2 p) {
+          vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+          p3 += dot(p3, p3.yzx + 33.33);
+          return fract((p3.x + p3.y) * p3.z);
+      }
+      
+      float hash13(vec3 p3) {
+          p3 = fract(p3 * 0.1031);
+          p3 += dot(p3, p3.zyx + 31.32);
+          return fract((p3.x + p3.y) * p3.z);
+      }
+      
+      // Multiple noise octaves for better grain quality
+      float grain(vec2 uv, float time) {
+          // Use modular time to prevent precision issues
+          float t = mod(time, 1000.0);
+          
+          // Layer 1: Fine high-frequency grain
+          vec3 coord1 = vec3(uv * 847.0, t * 3.7);
+          float noise1 = hash13(coord1) * 0.4;
+          
+          // Layer 2: Medium grain with different frequency
+          vec3 coord2 = vec3(uv * 1031.0, t * 2.3);
+          float noise2 = hash13(coord2) * 0.3;
+          
+          // Layer 3: Coarse grain for texture variation
+          vec3 coord3 = vec3(uv * 467.0, t * 5.1);
+          float noise3 = hash13(coord3) * 0.2;
+          
+          // Layer 4: Very fine detail
+          vec3 coord4 = vec3(uv * 1657.0, t * 7.9);
+          float noise4 = hash13(coord4) * 0.15;
+          
+          return (noise1 + noise2 + noise3 + noise4 - 0.525) * 0.012;
+      }
+      
+      // Hot pixels/sparkles with better distribution
+      float sparkles(vec2 uv, float time) {
+          float t = mod(time, 500.0); // Different cycle for sparkles
+          vec3 sparkleCoord = vec3(uv * 1337.0, t * 11.7);
+          float sparkleNoise = hash13(sparkleCoord);
+          
+          // Create occasional bright pixels
+          float sparkle = step(0.9985, sparkleNoise) * 0.03;
+          
+          // Add some medium sparkles
+          vec3 sparkleCoord2 = vec3(uv * 991.0, t * 13.3);
+          float sparkleNoise2 = hash13(sparkleCoord2);
+          sparkle += step(0.997, sparkleNoise2) * 0.015;
+          
+          return sparkle;
       }
       
       vec3 linearToGamma (vec3 color) {
@@ -677,30 +726,12 @@ function initFluidSimulation() {
           c += bloom;
       #endif
           
-          // Add film grain effect - High ISO film camera style (uniform fine grain)
-          vec2 grainCoord = vUv;
-          
-          // Fine grain with proper flickering - using pure random to avoid patterns
-          float timeFlicker = floor(uTime * 8.0); // 8 fps discrete flicker for organic feel
-          
-          // Use pure random instead of noise to avoid patterns
-          // Medium grain with multiple random samples
-          float mediumGrain = random(grainCoord * 1200.0 + timeFlicker * 23.7) * 0.006;
-          mediumGrain += random(grainCoord * 1250.0 + timeFlicker * 29.3) * 0.004;
-          
-          // Fine grain detail with different random seeds
-          float fineGrain = random(grainCoord * 2000.0 + timeFlicker * 31.1) * 0.003;
-          fineGrain += random(grainCoord * 2100.0 + timeFlicker * 37.9) * 0.002;
-          
-          // Combine grain layers
-          float grain = mediumGrain + fineGrain;
-          
-          // Add some random sparkle (hot pixels) - different flicker rate
-          float sparkle = step(0.999, random(grainCoord * 2500.0 + floor(uTime * 15.0) * 41.7)) * 0.04;
-          grain += sparkle;
+          // Add improved film grain effect
+          float grainValue = grain(vUv, uTime);
+          float sparkleValue = sparkles(vUv, uTime);
           
           // Apply grain to the color
-          c += vec3(grain);
+          c += vec3(grainValue + sparkleValue);
           
           float a = max(c.r, max(c.g, c.b));
           gl_FragColor = vec4(c, a);
