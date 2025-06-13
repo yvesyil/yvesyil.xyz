@@ -521,10 +521,18 @@ document.addEventListener('astro:page-load', () => {
       uniform sampler2D uDithering;
       uniform vec2 ditherScale;
       uniform vec2 texelSize;
+      uniform float uTime;
+      
+      // Grain/noise function
+      float random(vec2 st) {
+          return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+      }
+      
       vec3 linearToGamma (vec3 color) {
           color = max(color, vec3(0));
           return max(1.055 * pow(color, vec3(0.416666667)) - 0.055, vec3(0));
       }
+      
       void main () {
           vec3 c = texture2D(uTexture, vUv).rgb;
       #ifdef SHADING
@@ -556,6 +564,32 @@ document.addEventListener('astro:page-load', () => {
           bloom = linearToGamma(bloom);
           c += bloom;
       #endif
+          
+          // Add film grain effect - High ISO film camera style (uniform fine grain)
+          vec2 grainCoord = vUv;
+          
+          // Fine grain with proper flickering - using pure random to avoid patterns
+          float timeFlicker = floor(uTime * 8.0); // 8 fps discrete flicker for organic feel
+          
+          // Use pure random instead of noise to avoid patterns
+          // Medium grain with multiple random samples
+          float mediumGrain = random(grainCoord * 1200.0 + timeFlicker * 23.7) * 0.006;
+          mediumGrain += random(grainCoord * 1250.0 + timeFlicker * 29.3) * 0.004;
+          
+          // Fine grain detail with different random seeds
+          float fineGrain = random(grainCoord * 2000.0 + timeFlicker * 31.1) * 0.003;
+          fineGrain += random(grainCoord * 2100.0 + timeFlicker * 37.9) * 0.002;
+          
+          // Combine grain layers
+          float grain = mediumGrain + fineGrain;
+          
+          // Add some random sparkle (hot pixels) - different flicker rate
+          float sparkle = step(0.999, random(grainCoord * 2500.0 + floor(uTime * 15.0) * 41.7)) * 0.04;
+          grain += sparkle;
+          
+          // Apply grain to the color
+          c += vec3(grain);
+          
           float a = max(c.r, max(c.g, c.b));
           gl_FragColor = vec4(c, a);
       }
@@ -1229,6 +1263,7 @@ document.addEventListener('astro:page-load', () => {
 
   let lastUpdateTime = Date.now();
   let colorUpdateTimer = 0.0;
+  let startTime = Date.now(); // Add start time for grain animation
   update();
 
   function update() {
@@ -1445,6 +1480,10 @@ document.addEventListener('astro:page-load', () => {
     }
     if (config.SUNRAYS)
       gl.uniform1i(displayMaterial.uniforms.uSunrays, sunrays.attach(3));
+    
+    // Add time uniform for grain animation
+    gl.uniform1f(displayMaterial.uniforms.uTime, (Date.now() - startTime) / 1000);
+    
     blit(target);
   }
 
