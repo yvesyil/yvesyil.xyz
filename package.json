@@ -1,25 +1,29 @@
 {
-  "name": "repositories-yvesyil-xyz",
-  "type": "module",
-  "version": "0.0.1",
+  "name": "yvesyil-xyz",
+  "version": "1.0.0",
+  "private": true,
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro check && astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@astrojs/check": "^0.4.1",
-    "@astrojs/react": "^4.2.0",
-    "@astrojs/vercel": "^7.5.3",
-    "@types/react": "^19.0.8",
-    "@types/react-dom": "^19.0.3",
-    "astro": "^4.2.6",
     "moment": "^2.30.1",
+    "next": "^14.0.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "three": "^0.163.0",
+    "styled-jsx": "^5.1.7",
+    "three": "^0.163.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "@types/three": "^0.163.0",
+    "eslint": "^8.55.0",
+    "eslint-config-next": "^14.0.4",
     "typescript": "^5.3.3"
   }
 }
