@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { debounce } from '../lib/utils';
+import { fadeOutThen } from '../lib/navigation';
 
 const pageOrder = ['/', '/whoami', '/projects', '/writings', '/contact'];
 
@@ -44,7 +45,7 @@ export default function Navigation() {
       lastNavigationTime = now;
       
       try {
-        router.push(targetPage);
+        fadeOutThen(() => router.push(targetPage));
         currentIndex = targetIndex;
       } catch (error) {
         console.error('Navigation error:', error);
@@ -82,7 +83,7 @@ export default function Navigation() {
       lastNavigationTime = now;
       
       try {
-        router.push(targetPage);
+        fadeOutThen(() => router.push(targetPage));
         currentIndex = targetIndex;
       } catch (error) {
         console.error('Navigation error:', error);
@@ -143,7 +144,7 @@ export default function Navigation() {
       lastNavigationTime = now;
       
       try {
-        router.push(targetPage);
+        fadeOutThen(() => router.push(targetPage));
         currentIndex = targetIndex;
       } catch (error) {
         console.error('Navigation error:', error);

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './styles/globals.css';
 import PolaroidCursor from './components/PhotoCanvas';
 import PageDots from './components/PageDots';
+import FadeOnRouteChange from './components/FadeOnRouteChange';
 
 export const metadata: Metadata = {
   title: 'Yves Yil',
@@ -33,6 +34,7 @@ export default function RootLayout({
         <PolaroidCursor />
         
         <div className="page-content">
+          <FadeOnRouteChange />
           {children}
         </div>
         

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { fadeOutThen } from '../lib/navigation';
 
 const pageOrder = ['/', '/whoami', '/projects', '/writings', '/contact'];
 
@@ -21,7 +22,7 @@ export default function PageDots() {
 
   const handleDotClick = (targetPage: string) => {
     if (targetPage === currentPath) return;
-    router.push(targetPage);
+    fadeOutThen(() => router.push(targetPage));
   };
 
   return (

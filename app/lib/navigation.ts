@@ -1,3 +1,22 @@
+export function fadeOutThen(navigate: () => void, durationMs = 250) {
+  const container = document.querySelector('.page-content') as HTMLElement | null
+  if (!container) {
+    navigate()
+    return
+  }
+
+  container.style.transition = 'opacity 250ms ease-in-out'
+  container.style.opacity = '1'
+
+  // Force reflow to apply transition consistently
+  void container.offsetHeight
+
+  container.style.opacity = '0'
+  setTimeout(() => {
+    navigate()
+  }, durationMs)
+}
+
 import { debounce } from './utils';
 
 // Page navigation order

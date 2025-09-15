@@ -31,15 +31,10 @@
       "static/chunks/main-app.js",
       "static/chunks/app/contact/page.js"
     ],
-    "/writings/1/layout": [
+    "/template": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/writings/1/layout.js"
-    ],
-    "/writings/1/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/writings/1/page.js"
+      "static/chunks/app/template.js"
     ]
   }
 }
