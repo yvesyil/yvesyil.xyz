@@ -32,7 +32,7 @@ export default function Content({ title, next, prev, children }: ContentProps) {
           justify-content: flex-start;
           align-items: flex-end;
           overflow: hidden;
-          padding-left: 10rem;
+          padding-left: 5rem;
           padding-right: 5rem;
         }
 
@@ -55,7 +55,7 @@ export default function Content({ title, next, prev, children }: ContentProps) {
         }
 
         .section-body {
-          padding-left: 1.5rem;
+          padding-left: 2rem;
           display: flex; 
           flex-direction: column; 
           justify-content: start;
@@ -87,7 +87,7 @@ export default function Content({ title, next, prev, children }: ContentProps) {
 
         @media (pointer: none), (pointer: coarse), (hover: none) {
           .content-main {
-            padding-left: 8rem;
+            padding-left: 4rem;
             padding-right: 3rem;
           }
           

@@ -14,6 +14,11 @@ export default function PageDots() {
     setCurrentPath(pathname);
   }, [pathname]);
 
+  // Hide dots on writing detail pages (e.g., /writings/1)
+  if (pathname && pathname.startsWith('/writings/')) {
+    return null;
+  }
+
   const handleDotClick = (targetPage: string) => {
     if (targetPage === currentPath) return;
     router.push(targetPage);
