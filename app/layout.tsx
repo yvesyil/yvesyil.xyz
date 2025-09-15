@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './styles/globals.css';
-import PolaroidCursor from './components/FluidCanvas';
+import PolaroidCursor from './components/PhotoCanvas';
 import PageDots from './components/PageDots';
 
 export const metadata: Metadata = {

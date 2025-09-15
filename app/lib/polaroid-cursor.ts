@@ -25,19 +25,35 @@ interface PolaroidElement {
   image: string;
 }
 
-// All available photos - only from public/photos/
+// All available photos - from public/photos/tiny/ for better performance
 const photoList = [
-  '/photos/AStreetInHaarlem.jpg',
-  '/photos/Autopark.jpg',
-  '/photos/DeBurcht.jpg',
-  '/photos/SAIL.jpg',
-  '/photos/SintBonifatiuskerk.jpg',
+  '/photos/tiny/AngelHoldingChalice.jpg',
+  '/photos/tiny/AStreetInHaarlem.jpg',
+  '/photos/tiny/Autopark.jpg',
+  '/photos/tiny/CafeHetWapenVanBlo.jpg',
+  '/photos/tiny/Caritasbronden.jpg',
+  '/photos/tiny/CatLaying.jpg',
+  '/photos/tiny/CatWithLargeCollar.jpg',
+  '/photos/tiny/ChurchInTheDistance.jpg',
+  '/photos/tiny/Cows.jpg',
+  '/photos/tiny/CowsCurious.jpg',
+  '/photos/tiny/DeBurcht.jpg',
+  '/photos/tiny/FrederiksbergSlot.jpg',
+  '/photos/tiny/GrassPlane.jpg',
+  '/photos/tiny/Lake.jpg',
+  '/photos/tiny/Maan.jpg',
+  '/photos/tiny/Mermaid.jpg',
+  '/photos/tiny/Office.jpg',
+  '/photos/tiny/SAIL.jpg',
+  '/photos/tiny/SintBonifatiuskerk.jpg',
+  '/photos/tiny/Stairs.jpg',
+  '/photos/tiny/ZaanRiver.jpg',
 ];
 
 const config = {
   maxPolaroids: 20, // Higher limit to prevent pauses
-  polaroidLife: 120, // Shorter life so photos cycle faster
-  spawnInterval: 4, // Spawn every 4 frames (15 times per second)
+  polaroidLife: 60, // Shorter life so photos cycle faster
+  spawnInterval: 8, // Spawn every 4 frames (15 times per second)
   fadeOutDuration: 30, // Faster fade for quicker turnover
   minMovementThreshold: 1, // Lower threshold
   polaroidSize: 140, // Bigger photos
@@ -65,8 +81,6 @@ function createPolaroidElement(x: number, y: number): PolaroidElement {
   
   element.style.cssText = `
     position: fixed;
-    width: ${config.polaroidSize}px;
-    height: ${config.polaroidSize * 1.2}px;
     pointer-events: none;
     z-index: 1000;
     transform: translate(-50%, -50%) rotate(${rotation}deg) scale(${scale});

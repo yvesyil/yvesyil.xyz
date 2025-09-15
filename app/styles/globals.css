@@ -305,25 +305,27 @@ strong {
 }
 
 .polaroid-inner {
-  width: 100%;
-  height: 100%;
   background: white;
-  padding: 4px; /* Even thinner border */
-  padding-bottom: 14px; /* Even thinner bottom area */
+  padding: 8px; /* White border around image */
+  padding-bottom: 20px; /* Extra space at bottom like real polaroids */
   box-sizing: border-box;
   border-radius: 2px;
+  display: inline-block;
 }
 
 .polaroid-inner img {
-  width: 100%;
-  height: calc(100% - 10px); /* Adjusted for thinner caption */
-  object-fit: cover;
   display: block;
   border-radius: 1px;
+  /* Let image keep its natural aspect ratio */
+  max-width: 120px;
+  max-height: 120px;
+  width: auto;
+  height: auto;
 }
 
 .polaroid-caption {
-  height: 10px; /* Even thinner caption area */
+  height: 12px;
   background: white;
-  margin-top: 2px;
+  margin-top: 4px;
+  width: 100%;
 }
