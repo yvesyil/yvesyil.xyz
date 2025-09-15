@@ -9,7 +9,12 @@ let mouseY = 0;
 let lastMouseX = 0;
 let lastMouseY = 0;
 let spawnTimer = 0; // Timer for consistent spawning
-let isMouseMoving = false;
+let wasMouseMoving = false;
+let resumeDelay = 0; // frames to delay after movement resumes
+const RESUME_DELAY_FRAMES = 5; // ~0.1s at 60fps
+let resumeUntilMs = 0; // timestamp until which we delay spawning after resume
+let idleFrames = 0; // frames not moving
+const IDLE_ARM_FRAMES = 20; // require ~0.33s idle before arming resume delay
 
 interface PolaroidElement {
   element: HTMLDivElement;
@@ -25,7 +30,7 @@ interface PolaroidElement {
   image: string;
 }
 
-// All available photos - from public/photos/tiny/ for better performance
+// Tiny images for better performance
 const photoList = [
   '/photos/tiny/AngelHoldingChalice.jpg',
   '/photos/tiny/AStreetInHaarlem.jpg',
@@ -59,13 +64,16 @@ const config = {
   polaroidSize: 140, // Bigger photos
 };
 
-function getRandomPhoto(): string {
-  return photoList[Math.floor(Math.random() * photoList.length)];
+let photoIndex = 0;
+function getNextPhoto(): string {
+  const src = photoList[photoIndex];
+  photoIndex = (photoIndex + 1) % photoList.length;
+  return src;
 }
 
 function createPolaroidElement(x: number, y: number): PolaroidElement {
   const element = document.createElement('div');
-  const image = getRandomPhoto();
+  const image = getNextPhoto();
   
   element.className = 'polaroid-photo';
   element.innerHTML = `
@@ -86,6 +94,9 @@ function createPolaroidElement(x: number, y: number): PolaroidElement {
     transform: translate(-50%, -50%) rotate(${rotation}deg) scale(${scale});
     transition: none;
   `;
+  // Set initial position immediately so it doesn't flash at (0,0)
+  element.style.left = `${x}px`;
+  element.style.top = `${y}px`;
   
   const polaroidElement: PolaroidElement = {
     element,
@@ -143,47 +154,74 @@ function updatePolaroids() {
     }
   }
   
-  // Debug and simplified spawning
+  // Movement metrics and gating
   const dx = mouseX - lastMouseX;
   const dy = mouseY - lastMouseY;
   const movement = Math.sqrt(dx * dx + dy * dy);
-  
-  // Always increment timer (for debugging)
+  const isMoving = movement > config.minMovementThreshold;
+
+  // Track idle vs moving frames to avoid re-arming delay on micro pauses
+  if (isMoving) {
+    // Only arm a delay if we were truly idle for a bit
+    if (!wasMouseMoving && idleFrames >= IDLE_ARM_FRAMES) {
+      resumeDelay = RESUME_DELAY_FRAMES;
+      spawnTimer = 0; // reset cadence
+      resumeUntilMs = typeof performance !== 'undefined' ? performance.now() + 120 : 0; // ~120ms
+    }
+    idleFrames = 0;
+  } else {
+    idleFrames++;
+  }
+
+  // Time-based guard (more robust across frame rates)
+  if (resumeUntilMs && typeof performance !== 'undefined' && performance.now() < resumeUntilMs) {
+    wasMouseMoving = isMoving;
+    // DO NOT update lastMouse here; keep delta non-zero after delay
+    spawnTimer++; // advance cadence during delay so first spawn can happen right after
+    return;
+  } else {
+    resumeUntilMs = 0;
+  }
+
+  // Fallback frame-based guard
+  if (resumeDelay > 0) {
+    resumeDelay--;
+    wasMouseMoving = isMoving;
+    // DO NOT update lastMouse here; keep delta non-zero after delay
+    spawnTimer++; // advance cadence during frame-based delay
+    return;
+  }
+
+  // Advance cadence
   spawnTimer++;
   
-  // Debug logging
-  if (spawnTimer % 60 === 0) {
-    console.log(`Mouse: ${mouseX}, ${mouseY}, Movement: ${movement.toFixed(2)}, Polaroids: ${polaroids.length}`);
-  }
-  
-  // Continuous spawning logic - remove limit check for smooth flow
-  if (movement > config.minMovementThreshold) {
+  // Continuous spawning while moving
+  if (isMoving) {
     if (spawnTimer >= config.spawnInterval) {
-      // Always spawn when moving, regardless of current count
+      // Spawn away from the cursor to avoid covering it
+      const spawnDistance = 70 + Math.random() * 30; // 70-100px
+      const spawnAngle = Math.random() * Math.PI * 2;
+      const ringX = mouseX + Math.cos(spawnAngle) * spawnDistance;
+      const ringY = mouseY + Math.sin(spawnAngle) * spawnDistance;
+
+      // Spawn; replace oldest if at capacity
       if (polaroids.length < config.maxPolaroids) {
-        console.log('Spawning polaroid!');
-        const spawnX = mouseX + (Math.random() - 0.5) * 50;
-        const spawnY = mouseY + (Math.random() - 0.5) * 50;
-        polaroids.push(createPolaroidElement(spawnX, spawnY));
+        polaroids.push(createPolaroidElement(ringX, ringY));
       } else {
         // Remove oldest polaroid and add new one for continuous flow
         const oldest = polaroids.shift();
         if (oldest && container && oldest.element.parentNode) {
           container.removeChild(oldest.element);
         }
-        console.log('Replacing oldest polaroid!');
-        const spawnX = mouseX + (Math.random() - 0.5) * 50;
-        const spawnY = mouseY + (Math.random() - 0.5) * 50;
-        polaroids.push(createPolaroidElement(spawnX, spawnY));
+        polaroids.push(createPolaroidElement(ringX, ringY));
       }
       spawnTimer = 0;
     }
   }
   
-  // Don't reset timer when not moving - let it keep counting
-  
   lastMouseX = mouseX;
   lastMouseY = mouseY;
+  wasMouseMoving = isMoving;
 }
 
 function animate() {
