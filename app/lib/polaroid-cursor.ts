@@ -2,6 +2,7 @@
 // Creates polaroid photos that follow mouse movement
 
 let polaroidInitialized = false;
+let photosLoaded = false;
 let container: HTMLDivElement | null = null;
 let polaroids: PolaroidElement[] = [];
 let mouseX = 0;
@@ -54,6 +55,18 @@ const photoList = [
   '/photos/tiny/Stairs.jpg',
   '/photos/tiny/ZaanRiver.jpg',
 ];
+
+async function preloadPhotos(urls: string[]): Promise<void> {
+  const loaders = urls.map((src) =>
+    new Promise<void>((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve();
+      img.onerror = () => resolve(); // treat errors as resolved to avoid blocking
+      img.src = src;
+    })
+  );
+  await Promise.all(loaders);
+}
 
 const config = {
   maxPolaroids: 20, // Higher limit to prevent pauses
@@ -120,6 +133,8 @@ function createPolaroidElement(x: number, y: number): PolaroidElement {
 }
 
 function updatePolaroids() {
+  // If images aren't ready, skip updates (prevents blank placeholders)
+  if (!photosLoaded) return;
   // Update existing polaroids
   for (let i = polaroids.length - 1; i >= 0; i--) {
     const polaroid = polaroids[i];
@@ -272,7 +287,7 @@ function attachEventListeners() {
 }
 
 // Main initialization function
-export function initPolaroidCursor() {
+export async function initPolaroidCursor() {
   if (typeof window === 'undefined') return;
   
   if (polaroidInitialized) {
@@ -314,10 +329,18 @@ export function initPolaroidCursor() {
     }
   }, { once: true });
 
-  // Attach event listeners
+  // Attach event listeners immediately
   attachEventListeners();
-  
-  // Start animation loop
+
+  // Preload photos before starting the effect
+  try {
+    await preloadPhotos(photoList);
+    photosLoaded = true;
+  } catch (_) {
+    photosLoaded = true; // don't block in case of unexpected errors
+  }
+
+  // Start animation loop only after photos are loaded
   animate();
 
   polaroidInitialized = true;
