@@ -1,7 +1,6 @@
 {
-  "/whoami/page": "app/whoami/page.js",
-  "/writings/page": "app/writings/page.js",
   "/contact/page": "app/contact/page.js",
   "/page": "app/page.js",
-  "/projects/page": "app/projects/page.js"
+  "/writings/page": "app/writings/page.js",
+  "/writings/(posts)/1/page": "app/writings/(posts)/1/page.js"
 }

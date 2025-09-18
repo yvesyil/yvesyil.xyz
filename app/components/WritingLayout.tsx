@@ -19,8 +19,9 @@ export default function WritingLayout({ children }: WritingLayoutProps) {
           font-size: 1.5rem;
           padding: 4rem 2rem;
           box-sizing: border-box;
-          max-width: 1500px;
+          max-width: 2000px;
           width: 100%;
+          margin: 0 auto;
           line-height: 1.6;
           background-color: transparent;
           min-height: 100vh;
@@ -68,7 +69,8 @@ export default function WritingLayout({ children }: WritingLayoutProps) {
         }
 
         .container :global(img) {
-          max-width: 100%;
+          width: 100%;
+          max-width: 1000px !important;
           height: auto;
           margin: 1.5rem auto;
           display: block;
