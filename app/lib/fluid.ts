@@ -146,10 +146,14 @@ function updateTrails() {
 
 function drawFluid() {
   if (!ctx || !canvas) return;
+
+  // Create local non-null references for type narrowing
+  const context = ctx as CanvasRenderingContext2D;
+  const cnv = canvas as HTMLCanvasElement;
   
   // Clear with dark background and fade effect
-  ctx.fillStyle = 'rgba(7, 10, 7, 0.03)'; // Very subtle fade
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = 'rgba(7, 10, 7, 0.03)'; // Very subtle fade
+  context.fillRect(0, 0, cnv.width, cnv.height);
   
   // Draw trails with glow effect
   trails.forEach(trail => {
@@ -157,10 +161,10 @@ function drawFluid() {
     
     if (alpha > 0.01) {
       // Main trail blob
-      ctx.beginPath();
-      ctx.arc(trail.x, trail.y, trail.size, 0, Math.PI * 2);
+      context.beginPath();
+      context.arc(trail.x, trail.y, trail.size, 0, Math.PI * 2);
       
-      const gradient = ctx.createRadialGradient(
+      const gradient = context.createRadialGradient(
         trail.x, trail.y, 0,
         trail.x, trail.y, trail.size * 3
       );
@@ -169,14 +173,14 @@ function drawFluid() {
       gradient.addColorStop(0.5, `rgba(${trail.color.r}, ${trail.color.g}, ${trail.color.b}, ${alpha * 0.4})`);
       gradient.addColorStop(1, `rgba(${trail.color.r}, ${trail.color.g}, ${trail.color.b}, 0)`);
       
-      ctx.fillStyle = gradient;
-      ctx.fill();
+      context.fillStyle = gradient;
+      context.fill();
       
       // Additional glow layer
-      ctx.beginPath();
-      ctx.arc(trail.x, trail.y, trail.size * 2, 0, Math.PI * 2);
+      context.beginPath();
+      context.arc(trail.x, trail.y, trail.size * 2, 0, Math.PI * 2);
       
-      const outerGradient = ctx.createRadialGradient(
+      const outerGradient = context.createRadialGradient(
         trail.x, trail.y, 0,
         trail.x, trail.y, trail.size * 6
       );
@@ -184,14 +188,14 @@ function drawFluid() {
       outerGradient.addColorStop(0, `rgba(${trail.color.r * 1.2}, ${trail.color.g * 1.2}, ${trail.color.b * 1.2}, ${alpha * 0.3})`);
       outerGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
       
-      ctx.fillStyle = outerGradient;
-      ctx.fill();
+      context.fillStyle = outerGradient;
+      context.fill();
     }
   });
   
   // Add film grain effect
   if (Math.random() < 0.3) {
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const imageData = context.getImageData(0, 0, cnv.width, cnv.height);
     const data = imageData.data;
     
     for (let i = 0; i < data.length; i += 4) {
@@ -201,7 +205,7 @@ function drawFluid() {
       data[i + 2] += grain; // B
     }
     
-    ctx.putImageData(imageData, 0, 0);
+    context.putImageData(imageData, 0, 0);
   }
 }
 
