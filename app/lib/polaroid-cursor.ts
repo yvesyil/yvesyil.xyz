@@ -3,6 +3,7 @@
 
 let polaroidInitialized = false;
 let photosLoaded = false;
+let preloadedImages: HTMLImageElement[] = [];
 let container: HTMLDivElement | null = null;
 let polaroids: PolaroidElement[] = [];
 let mouseX = 0;
@@ -57,11 +58,23 @@ const photoList = [
 ];
 
 async function preloadPhotos(urls: string[]): Promise<void> {
+  preloadedImages = [];
   const loaders = urls.map((src) =>
     new Promise<void>((resolve) => {
       const img = new Image();
-      img.onload = () => resolve();
-      img.onerror = () => resolve(); // treat errors as resolved to avoid blocking
+      img.decoding = 'async';
+      img.loading = 'eager';
+      img.referrerPolicy = 'no-referrer';
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        preloadedImages.push(img);
+        resolve();
+      };
+      img.onerror = () => {
+        // Still push to keep indexes aligned and avoid blocking spawns
+        preloadedImages.push(img);
+        resolve();
+      };
       img.src = src;
     })
   );
@@ -78,23 +91,42 @@ const config = {
 };
 
 let photoIndex = 0;
-function getNextPhoto(): string {
-  const src = photoList[photoIndex];
-  photoIndex = (photoIndex + 1) % photoList.length;
-  return src;
+function getNextPhoto(): HTMLImageElement {
+  if (preloadedImages.length === 0) {
+    // Fallback: construct a temp image if preload hasn't run
+    const tmp = new Image();
+    tmp.src = photoList[photoIndex % photoList.length];
+    photoIndex = (photoIndex + 1) % photoList.length;
+    return tmp;
+  }
+  const img = preloadedImages[photoIndex % preloadedImages.length];
+  photoIndex = (photoIndex + 1) % preloadedImages.length;
+  return img;
 }
 
 function createPolaroidElement(x: number, y: number): PolaroidElement {
   const element = document.createElement('div');
-  const image = getNextPhoto();
-  
+  const preloaded = getNextPhoto();
+
   element.className = 'polaroid-photo';
-  element.innerHTML = `
-    <div class="polaroid-inner">
-      <img src="${image}" alt="Random photo" />
-      <div class="polaroid-caption"></div>
-    </div>
-  `;
+
+  const inner = document.createElement('div');
+  inner.className = 'polaroid-inner';
+
+  const img = document.createElement('img');
+  // Use the already-loaded image's src; browser will use memory cache, no network
+  img.src = preloaded.currentSrc || preloaded.src;
+  img.alt = 'Random photo';
+  img.decoding = 'async';
+  img.loading = 'eager';
+  img.draggable = false;
+
+  const caption = document.createElement('div');
+  caption.className = 'polaroid-caption';
+
+  inner.appendChild(img);
+  inner.appendChild(caption);
+  element.appendChild(inner);
   
   // Random rotation and slight scale variation
   const rotation = (Math.random() - 0.5) * 30; // -15 to 15 degrees
@@ -122,7 +154,7 @@ function createPolaroidElement(x: number, y: number): PolaroidElement {
     maxLife: config.polaroidLife,
     vx: (Math.random() - 0.5) * 2,
     vy: (Math.random() - 0.5) * 2,
-    image
+    image: img.src
   };
   
   if (container) {
