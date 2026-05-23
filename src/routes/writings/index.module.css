@@ -1,0 +1,35 @@
+.pubDate {
+  font-size: 2vmin;
+  color: var(--site-alt);
+}
+
+.tag {
+  font-size: 2vmin;
+  color: var(--site-alt);
+  margin-right: 0.3rem;
+}
+
+.tags {
+  margin-left: 0.3rem;
+}
+
+.mobileBreak {
+  display: none;
+}
+
+@media screen and (max-width: 900px) {
+  .pubDate {
+    font-size: 2vmax;
+  }
+  .tag {
+    font-size: 2vmax;
+  }
+  .tags {
+    margin-left: 1.5rem;
+    position: relative;
+    top: -1em;
+  }
+  .mobileBreak {
+    display: block;
+  }
+}
