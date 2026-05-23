@@ -3,7 +3,7 @@ import Content from '../components/Content'
 
 function WhoAmI() {
   return (
-    <Content title="Me" next="projects" prev="/">
+    <Content title="About" next="projects" prev="/">
       <p>
         I&apos;m a software engineer working in finance, mainly focused on building automation and web applications.
       </p>

@@ -43,7 +43,7 @@ export default function Reader() {
       height: 'auto',
       maxHeight: isMobile ? '70vh' : '40vh',
       fontSize: isMobile ? '2rem' : '1rem',
-      fontFamily: '"Yana", serif',
+      fontFamily: '"Oranienbaum", serif',
       textAlign: 'center' as const,
       color: '#ccc',
       resize: 'none' as const,
@@ -79,7 +79,7 @@ export default function Reader() {
       fontSize: windowWidth > 2560 ? '1.5rem' :
                windowWidth > 1920 ? '2rem' :
                isMobile ? '4rem' : '3rem',
-      fontFamily: '"Yana", serif',
+      fontFamily: '"Oranienbaum", serif',
       cursor: 'pointer',
       margin: '1rem 1rem 0 1rem',
     },
@@ -93,7 +93,7 @@ export default function Reader() {
       color: '#fff',
       fontSize: windowWidth > 2560 ? '2rem' : 
                windowWidth > 1920 ? '3rem' : '5rem',
-      fontFamily: '"Yana", serif',
+      fontFamily: '"Oranienbaum", serif',
       position: 'relative' as const,
       left: isMobile ? '0' : '12vw',
     },
