@@ -1,4 +1,17 @@
 import { useEffect, useRef } from 'react'
+import { useLocation } from '@tanstack/react-router'
+
+// Per-route Mandelbulb `power` — the parameter that defines the fractal's
+// shape. Each route lands on a visibly different bulb.
+const ROUTE_POWER: Record<string, number> = {
+  '/':         8.0,
+  '/whoami':   5.0,
+  '/projects': 14.0,
+  '/writings': 3.5,
+  '/contact':  6.5,
+  '/read':     1.5,
+}
+const DEFAULT_POWER = ROUTE_POWER['/']
 
 const VERTEX_SHADER = /* glsl */ `
   varying vec2 vUv;
@@ -14,6 +27,7 @@ const FRAGMENT_SHADER = /* glsl */ `
   uniform vec2 uResolution;
   uniform vec2 uMouse;
   uniform float uTime;
+  uniform float uPower;
   varying vec2 vUv;
 
   // Mandelbulb distance estimator. Classic formulation:
@@ -87,8 +101,8 @@ const FRAGMENT_SHADER = /* glsl */ `
     vec3 up = cross(right, forward);
     vec3 rd = normalize(forward * 1.5 + uv.x * right + uv.y * up);
 
-    // Slowly breathing power for subtle morphing
-    float power = 8.0 + sin(uTime * 0.25) * 0.6;
+    // Per-route power with a slow breathing offset for subtle morphing
+    float power = uPower + sin(uTime * 0.25) * 0.4;
 
     // Raymarch
     float t = 0.4;
@@ -136,6 +150,12 @@ const FRAGMENT_SHADER = /* glsl */ `
 
 export default function NoiseCanvas() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const pathname = useLocation({ select: (loc) => loc.pathname })
+  const powerTargetRef = useRef(DEFAULT_POWER)
+
+  useEffect(() => {
+    powerTargetRef.current = ROUTE_POWER[pathname] ?? DEFAULT_POWER
+  }, [pathname])
 
   useEffect(() => {
     const container = containerRef.current
@@ -161,6 +181,7 @@ export default function NoiseCanvas() {
         uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
         uMouse: { value: new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2) },
         uTime: { value: 0 },
+        uPower: { value: DEFAULT_POWER },
       }
 
       const material = new THREE.ShaderMaterial({
@@ -197,12 +218,16 @@ export default function NoiseCanvas() {
 
       let raf = 0
       const start = performance.now()
+      let curPower = DEFAULT_POWER
       const tick = () => {
         current.x += (target.x - current.x) * 0.06
         current.y += (target.y - current.y) * 0.06
 
+        curPower += (powerTargetRef.current - curPower) * 0.03
+
         uniforms.uMouse.value.set(current.x, current.y)
         uniforms.uTime.value = (performance.now() - start) / 1000
+        uniforms.uPower.value = curPower
 
         renderer.render(scene, camera)
         raf = requestAnimationFrame(tick)
