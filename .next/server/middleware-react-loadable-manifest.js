@@ -1,1 +1,0 @@
-self.__REACT_LOADABLE_MANIFEST="{\"app/components/PhotoCanvas.tsx -> ../lib/polaroid-cursor\":{\"id\":\"app/components/PhotoCanvas.tsx -> ../lib/polaroid-cursor\",\"files\":[\"static/chunks/_app-pages-browser_app_lib_polaroid-cursor_ts.js\"]}}"
