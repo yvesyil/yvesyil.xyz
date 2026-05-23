@@ -5,6 +5,13 @@ import { fadeOutThen } from '../lib/navigation';
 
 const pageOrder = ['/', '/whoami', '/projects', '/writings', '/contact'];
 
+// Module-level so it persists across Navigation remounts (Content remounts
+// on every route change, which would otherwise reset gesture state and let
+// trailing touchpad inertia trigger a second navigation).
+let wheelLastEventTime = 0;
+let wheelIsNavigating = false;
+const GESTURE_IDLE_MS = 30;
+
 export default function Navigation() {
   const navigate = useNavigate();
   const pathname = useLocation({ select: (loc) => loc.pathname });
@@ -22,26 +29,38 @@ export default function Navigation() {
       return contentElement !== null;
     }
 
-    const handleWheel = debounce(async (event: WheelEvent) => {
-      if (isNavigating || !shouldEnableNavigation()) return;
-      
-      const now = Date.now();
-      if (now - lastNavigationTime < NAVIGATION_COOLDOWN) return;
-      
+    const handleWheel = (event: WheelEvent) => {
+      if (!shouldEnableNavigation()) return;
+
+      // Always preventDefault on Content pages so the document never scrolls
       event.preventDefault();
-      
-      let targetIndex: number;
-      if (event.deltaY > 0) {
-        targetIndex = (currentIndex + 1) % pageOrder.length;
-      } else {
-        targetIndex = (currentIndex - 1 + pageOrder.length) % pageOrder.length;
+
+      // Skip noise events entirely — they must NOT update the gesture timer,
+      // otherwise the real swipe events get blocked right after them.
+      if (Math.abs(event.deltaY) < 4 || Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+        return;
       }
-      
+
+      const now = Date.now();
+      const idleSinceLastWheel = now - wheelLastEventTime;
+      wheelLastEventTime = now;
+
+      // Mid-fade — absorb
+      if (wheelIsNavigating) return;
+
+      // Wheel events arriving inside the idle window are still the same
+      // swipe (inertia or continuous scroll). Block them.
+      if (idleSinceLastWheel < GESTURE_IDLE_MS) return;
+
+      const targetIndex = event.deltaY > 0
+        ? (currentIndex + 1) % pageOrder.length
+        : (currentIndex - 1 + pageOrder.length) % pageOrder.length;
       const targetPage = pageOrder[targetIndex];
-      
+
+      wheelIsNavigating = true;
       isNavigating = true;
       lastNavigationTime = now;
-      
+
       try {
         fadeOutThen(() => navigate({ to: targetPage }));
         currentIndex = targetIndex;
@@ -50,9 +69,10 @@ export default function Navigation() {
       }
 
       setTimeout(() => {
+        wheelIsNavigating = false;
         isNavigating = false;
-      }, 150);
-    }, 30);
+      }, 300);
+    };
 
     const handleKeyDown = async (event: KeyboardEvent): Promise<void> => {
       if (isNavigating || !shouldEnableNavigation()) return;
