@@ -9,7 +9,6 @@
   line-height: 1.6;
   background-color: transparent;
   min-height: 100vh;
-  overflow-y: auto;
 }
 
 .container :global(h1) {
