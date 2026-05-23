@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import { createRootRoute, Outlet, useLocation } from '@tanstack/react-router'
-import PhotoCanvas from '../components/PhotoCanvas'
 import PageDots from '../components/PageDots'
 
 function RootComponent() {
@@ -15,7 +14,6 @@ function RootComponent() {
 
   return (
     <>
-      <PhotoCanvas />
       <div className="page-content">
         <Outlet />
       </div>

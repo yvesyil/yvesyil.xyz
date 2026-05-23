@@ -291,33 +291,3 @@ strong {
   }
 }
 
-/* Polaroid Photo Styles */
-.polaroid-photo {
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-}
-
-.polaroid-inner {
-  background: white;
-  padding: 8px; /* White border around image */
-  padding-bottom: 20px; /* Extra space at bottom like real polaroids */
-  box-sizing: border-box;
-  border-radius: 2px;
-  display: inline-block;
-}
-
-.polaroid-inner img {
-  display: block;
-  border-radius: 1px;
-  /* Let image keep its natural aspect ratio */
-  max-width: 120px;
-  max-height: 120px;
-  width: auto;
-  height: auto;
-}
-
-.polaroid-caption {
-  height: 12px;
-  background: white;
-  margin-top: 4px;
-  width: 100%;
-}

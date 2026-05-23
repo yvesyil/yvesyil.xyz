@@ -1,10 +1,10 @@
 .subtext,
 .subtext * {
-  font-size: 1.5vmin;
+  font-size: 1.7vmin;
 }
 
 .tightTitle {
-  margin-bottom: -3vmin;
+  margin-bottom: -1.7vmin;
 }
 
 @media screen and (max-width: 900px) {
