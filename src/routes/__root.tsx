@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { createRootRoute, Outlet, useLocation } from '@tanstack/react-router'
+import NoiseCanvas from '../components/NoiseCanvas'
 import PageDots from '../components/PageDots'
 
 function RootComponent() {
@@ -14,6 +15,7 @@ function RootComponent() {
 
   return (
     <>
+      <NoiseCanvas />
       <div className="page-content">
         <Outlet />
       </div>
