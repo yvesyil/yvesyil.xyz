@@ -107,18 +107,14 @@ const FRAGMENT_SHADER = /* glsl */ `
     vec3 col = base;
     vec3 tint = vec3(0.42, 0.62, 0.42);
 
-    // Mandelbulb — barely there, just a faint suggestion
+    // Mandelbulb — edges only. Smoothstep the fresnel rim so only the
+    // outermost band lights up; the interior stays at the base colour.
     if (hit) {
       vec3 p = ro + rd * t;
       vec3 n = estimateNormal(p, power);
-      vec3 lightDir = normalize(vec3(0.6, 0.9, 0.5));
-      float diff = max(dot(n, lightDir), 0.0);
-      float fresnel = pow(1.0 - max(dot(-rd, n), 0.0), 2.0);
-      float glow = 1.0 - float(steps) / 64.0;
-      col += tint * (diff * 0.05 + fresnel * 0.03 + glow * 0.012);
-    } else {
-      float glow = 1.0 - float(steps) / 64.0;
-      col += tint * glow * 0.015;
+      float ndotv = max(dot(-rd, n), 0.0);
+      float rim = smoothstep(0.55, 1.0, 1.0 - ndotv);
+      col += tint * rim * 0.18;
     }
 
     // Film grain overlay — quantized cells, slow ~10 steps/sec flicker
