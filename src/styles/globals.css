@@ -183,8 +183,13 @@ ul {
 }
 
 ul li::before {
-  content: "⸺ ";
+  content: "—";
+  display: inline-block;
+  transform: scaleX(1.5);
+  transform-origin: left center;
+  margin-right: 0.6em;
   color: var(--site-default);
+  font-weight: 100;
 }
 
 blockquote {
