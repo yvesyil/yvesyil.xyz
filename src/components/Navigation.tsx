@@ -10,7 +10,7 @@ const pageOrder = ['/', '/whoami', '/projects', '/writings', '/contact'];
 // trailing touchpad inertia trigger a second navigation).
 let wheelLastEventTime = 0;
 let wheelIsNavigating = false;
-const GESTURE_IDLE_MS = 30;
+const GESTURE_IDLE_MS = 50;
 
 export default function Navigation() {
   const navigate = useNavigate();
