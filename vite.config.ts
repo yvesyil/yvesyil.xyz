@@ -7,7 +7,10 @@ export default defineConfig({
   plugins: [
     TanStackRouterVite({
       target: 'react',
-      autoCodeSplitting: true,
+      // Bundle every route into the initial chunk so route changes don't
+      // wait on an HTTP fetch — navigation becomes fully client-side once
+      // the app has loaded.
+      autoCodeSplitting: false,
       routesDirectory: './src/routes',
       generatedRouteTree: './src/routeTree.gen.ts',
     }),
