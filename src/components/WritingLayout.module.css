@@ -43,12 +43,27 @@
   font-family: monospace;
 }
 
+/* Reset line-height back to "normal" — otherwise `.container { line-height: 1.6 }`
+   leaks through and stretches the blockquote lines. */
 .container :global(blockquote) {
   margin: 2rem 0;
-  padding-left: 1.5rem;
-  border-left: 3px solid var(--site-alt);
-  font-style: italic;
-  color: var(--site-light);
+  line-height: normal;
+}
+
+.container :global(blockquote) :global(p) {
+  margin: 0;
+  padding: 0;
+  border: none;
+  font: inherit;
+  color: inherit;
+  line-height: inherit;
+}
+
+/* The MDX blockquote uses an inline `<br>` for the line break. Cancel the
+   global `.container :global(br) { margin-bottom: 1rem }` rule here so it
+   doesn't add a fat gap inside the blockquote. */
+.container :global(blockquote) :global(br) {
+  margin-bottom: 0;
 }
 
 .container :global(img) {

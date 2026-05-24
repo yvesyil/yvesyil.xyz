@@ -166,6 +166,9 @@ a {
   color: var(--site-light);
   text-decoration: none;
   line-height: 1.4;
+  /* inline-block so TextDistortion's transform / skew actually applies
+     (CSS transforms are ignored on plain inline elements). */
+  display: inline-block;
 }
 
 ul {
