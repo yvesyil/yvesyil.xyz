@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { createRootRoute, Outlet, useLocation } from '@tanstack/react-router'
+import MandelbulbCanvas from '../components/MandelbulbCanvas'
 import NoiseCanvas from '../components/NoiseCanvas'
 import PageDots from '../components/PageDots'
 import TextDistortion from '../components/TextDistortion'
@@ -17,6 +18,7 @@ function RootComponent() {
 
   return (
     <>
+      <MandelbulbCanvas />
       <NoiseCanvas />
       <GlitchFilter />
       <TextDistortion />
