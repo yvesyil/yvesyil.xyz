@@ -14,8 +14,8 @@ function Projects() {
         <li><a href="https://carthage.trading">Carthage</a> is an automated trading platform of financial securities. Currently work-in-progress.</li>
         <li><a href="https://mosaicrpg.com">Mosaic</a> is a platform where anyone can make their own table-top RPG games and play them.</li>
         <li><a href="https://clowa.net">CLOWA</a> is a collection of articles found on the web that are worth sharing.</li>
+        <li>Other open-source projects are listed on my <a href="https://github.com/yvesyil">Github</a>.</li>
       </ul>
-      <p>Open-source projects are listed on my <a href="https://github.com/yvesyil">Github</a>.</p>
     </Content>
   )
 }
