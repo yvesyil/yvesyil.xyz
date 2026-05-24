@@ -29,9 +29,11 @@ export default function TextDistortion() {
     const range = document.createRange()
 
     const clearStyles = (el: HTMLElement) => {
-      if (el.style.transform || el.style.textShadow) {
+      if (el.style.transform || el.style.textShadow || el.style.clipPath || el.style.filter) {
         el.style.transform = ''
         el.style.textShadow = ''
+        el.style.clipPath = ''
+        el.style.filter = ''
       }
     }
 
@@ -96,12 +98,55 @@ export default function TextDistortion() {
           const jitterY = (Math.random() - 0.5) * k * JITTER_MAX
           const skew = nx * k * SKEW_MAX
 
-          el.style.textShadow =
-            `${(-chromatic).toFixed(2)}px 0 rgba(255, 80, 80, 0.85), ` +
-            `${chromatic.toFixed(2)}px 0 rgba(80, 220, 255, 0.85)`
+          // === WAVE — SVG displacement filter does the real work; this is
+          // just a tiny residual skew so the element edges hint at motion. ===
+          const now = performance.now()
+          const phase = box.top * 0.01
+          const waveSkew = Math.sin(now * 0.005 + phase) * k * 1.5
+
+          // === GLITCH BURSTS — probabilistic, scaled by proximity ===
+          // Occasional sharp horizontal jump (broken-signal feel)
+          let glitchX = 0
+          if (Math.random() < 0.06 * k) {
+            glitchX = (Math.random() - 0.5) * 22
+          }
+
+          // Occasional clip-path band — slices off top or bottom of the text
+          let clipPath = ''
+          if (Math.random() < 0.05 * k) {
+            const slice = 10 + Math.random() * 50 // 10–60%
+            clipPath = Math.random() < 0.5
+              ? `inset(${slice.toFixed(1)}% 0 0 0)`
+              : `inset(0 0 ${slice.toFixed(1)}% 0)`
+          }
+
+          // Occasional triple-shadow chromatic stack (more aggressive split)
+          const useTripleSplit = Math.random() < 0.08 * k
+          const shadow = useTripleSplit
+            ? `${(-chromatic * 1.6).toFixed(2)}px 0 rgba(255, 80, 80, 0.9), ` +
+              `${(chromatic * 1.6).toFixed(2)}px 0 rgba(80, 220, 255, 0.9), ` +
+              `0 ${(chromatic * 0.8).toFixed(2)}px rgba(180, 255, 120, 0.4)`
+            : `${(-chromatic).toFixed(2)}px 0 rgba(255, 80, 80, 0.85), ` +
+              `${chromatic.toFixed(2)}px 0 rgba(80, 220, 255, 0.85)`
+
+          el.style.textShadow = shadow
           el.style.transform =
-            `translate(${jitterX.toFixed(2)}px, ${jitterY.toFixed(2)}px) ` +
-            `skewX(${skew.toFixed(2)}deg)`
+            `translate(${(jitterX + glitchX).toFixed(2)}px, ${jitterY.toFixed(2)}px) ` +
+            `skewX(${(skew + waveSkew).toFixed(2)}deg)`
+          el.style.clipPath = clipPath
+          // SVG displacement filter — wave-distorts the text glyphs themselves
+          // (not just the element). The filter's internal animation makes the
+          // noise pattern travel upward, so the wave appears to climb the text.
+          // Variant by element size: bigger text needs bigger, lower-frequency
+          // waves to feel proportional rather than like fine jitter.
+          const tag = el.tagName
+          const filterId =
+            tag === 'H1' || el.classList.contains('section-title')
+              ? 'text-wave-distort-lg'
+              : tag === 'H2'
+                ? 'text-wave-distort-md'
+                : 'text-wave-distort-sm'
+          el.style.filter = `url(#${filterId})`
         } else {
           clearStyles(el)
         }

@@ -3,6 +3,7 @@ import { createRootRoute, Outlet, useLocation } from '@tanstack/react-router'
 import NoiseCanvas from '../components/NoiseCanvas'
 import PageDots from '../components/PageDots'
 import TextDistortion from '../components/TextDistortion'
+import GlitchFilter from '../components/GlitchFilter'
 
 function RootComponent() {
   const pathname = useLocation({ select: (loc) => loc.pathname })
@@ -17,6 +18,7 @@ function RootComponent() {
   return (
     <>
       <NoiseCanvas />
+      <GlitchFilter />
       <TextDistortion />
       <div className="page-content">
         <Outlet />
