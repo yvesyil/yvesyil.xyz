@@ -8,6 +8,7 @@ import { useEffect } from 'react'
 
 const SELECTOR = 'h1, h2, h3, blockquote, .section-title, a:not(.no-distort)'
 const RADIUS = 160        // px — proximity for the effect to engage
+const WAVE_RADIUS = 40    // px — tighter proximity for the SVG wave filter
 const CHROMATIC_MAX = 4   // px — max red/cyan split
 const JITTER_MAX = 1    // px — random shake per frame
 const SKEW_MAX = 7       // deg — max horizontal skew
@@ -27,8 +28,19 @@ export default function TextDistortion() {
     }
 
     const range = document.createRange()
+    // Track which elements are currently in hover range so we can detect
+    // the "out → in" transition and restart the SVG wave from frame 0.
+    const hovering = new WeakSet<HTMLElement>()
+
+    const restartWave = (variant: 'sm' | 'md' | 'lg') => {
+      const animate = document.getElementById(`text-wave-anim-${variant}`) as unknown as
+        | (SVGElement & { beginElement?: () => void })
+        | null
+      animate?.beginElement?.()
+    }
 
     const clearStyles = (el: HTMLElement) => {
+      if (hovering.has(el)) hovering.delete(el)
       if (el.style.transform || el.style.textShadow || el.style.clipPath || el.style.filter) {
         el.style.transform = ''
         el.style.textShadow = ''
@@ -98,55 +110,36 @@ export default function TextDistortion() {
           const jitterY = (Math.random() - 0.5) * k * JITTER_MAX
           const skew = nx * k * SKEW_MAX
 
-          // === WAVE — SVG displacement filter does the real work; this is
-          // just a tiny residual skew so the element edges hint at motion. ===
-          const now = performance.now()
-          const phase = box.top * 0.01
-          const waveSkew = Math.sin(now * 0.005 + phase) * k * 1.5
-
-          // === GLITCH BURSTS — probabilistic, scaled by proximity ===
-          // Occasional sharp horizontal jump (broken-signal feel)
-          let glitchX = 0
-          if (Math.random() < 0.06 * k) {
-            glitchX = (Math.random() - 0.5) * 22
-          }
-
-          // Occasional clip-path band — slices off top or bottom of the text
-          let clipPath = ''
-          if (Math.random() < 0.05 * k) {
-            const slice = 10 + Math.random() * 50 // 10–60%
-            clipPath = Math.random() < 0.5
-              ? `inset(${slice.toFixed(1)}% 0 0 0)`
-              : `inset(0 0 ${slice.toFixed(1)}% 0)`
-          }
-
-          // Occasional triple-shadow chromatic stack (more aggressive split)
-          const useTripleSplit = Math.random() < 0.08 * k
-          const shadow = useTripleSplit
-            ? `${(-chromatic * 1.6).toFixed(2)}px 0 rgba(255, 80, 80, 0.9), ` +
-              `${(chromatic * 1.6).toFixed(2)}px 0 rgba(80, 220, 255, 0.9), ` +
-              `0 ${(chromatic * 0.8).toFixed(2)}px rgba(180, 255, 120, 0.4)`
-            : `${(-chromatic).toFixed(2)}px 0 rgba(255, 80, 80, 0.85), ` +
-              `${chromatic.toFixed(2)}px 0 rgba(80, 220, 255, 0.85)`
-
-          el.style.textShadow = shadow
+          el.style.textShadow =
+            `${(-chromatic).toFixed(2)}px 0 rgba(255, 80, 80, 0.85), ` +
+            `${chromatic.toFixed(2)}px 0 rgba(80, 220, 255, 0.85)`
           el.style.transform =
-            `translate(${(jitterX + glitchX).toFixed(2)}px, ${jitterY.toFixed(2)}px) ` +
-            `skewX(${(skew + waveSkew).toFixed(2)}deg)`
-          el.style.clipPath = clipPath
-          // SVG displacement filter — wave-distorts the text glyphs themselves
-          // (not just the element). The filter's internal animation makes the
-          // noise pattern travel upward, so the wave appears to climb the text.
-          // Variant by element size: bigger text needs bigger, lower-frequency
-          // waves to feel proportional rather than like fine jitter.
-          const tag = el.tagName
-          const filterId =
-            tag === 'H1' || el.classList.contains('section-title')
-              ? 'text-wave-distort-lg'
-              : tag === 'H2'
-                ? 'text-wave-distort-md'
-                : 'text-wave-distort-sm'
-          el.style.filter = `url(#${filterId})`
+            `translate(${jitterX.toFixed(2)}px, ${jitterY.toFixed(2)}px) ` +
+            `skewX(${skew.toFixed(2)}deg)`
+          // SVG displacement filter — wave-distorts the text glyphs themselves.
+          // Only engages within the much tighter WAVE_RADIUS, so it fires
+          // only when the cursor is essentially on the text (when jitter and
+          // skew are at full strength too).
+          if (d < WAVE_RADIUS) {
+            const tag = el.tagName
+            const variant: 'sm' | 'md' | 'lg' =
+              tag === 'H1' || el.classList.contains('section-title')
+                ? 'lg'
+                : tag === 'H2'
+                  ? 'md'
+                  : 'sm'
+            el.style.filter = `url(#text-wave-distort-${variant})`
+
+            // Out → in transition: restart the wave from frame 0 (bottom of
+            // the text) so each new hover begins the animation fresh.
+            if (!hovering.has(el)) {
+              hovering.add(el)
+              restartWave(variant)
+            }
+          } else {
+            if (el.style.filter) el.style.filter = ''
+            if (hovering.has(el)) hovering.delete(el)
+          }
         } else {
           clearStyles(el)
         }

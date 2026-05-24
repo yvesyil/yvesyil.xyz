@@ -38,11 +38,13 @@ export default function GlitchFilter() {
           />
           <feOffset in="noise" result="movingNoise">
             <animate
+              id="text-wave-anim-sm"
               attributeName="dy"
               values="0;-50"
               dur="5s"
               repeatCount="indefinite"
               calcMode="linear"
+              begin="indefinite"
             />
           </feOffset>
           <feDisplacementMap
@@ -54,7 +56,7 @@ export default function GlitchFilter() {
           />
         </filter>
 
-        <filter id="text-wave-distort-md" x="-15%" y="-20%" width="130%" height="140%">
+        <filter id="text-wave-distort-md" x="-20%" y="-20%" width="140%" height="140%">
           <feTurbulence
             type="fractalNoise"
             baseFrequency="0.01 0.008"
@@ -65,23 +67,25 @@ export default function GlitchFilter() {
           />
           <feOffset in="noise" result="movingNoise">
             <animate
+              id="text-wave-anim-md"
               attributeName="dy"
               values="0;-125"
               dur="6s"
               repeatCount="indefinite"
               calcMode="linear"
+              begin="indefinite"
             />
           </feOffset>
           <feDisplacementMap
             in="SourceGraphic"
             in2="movingNoise"
-            scale="22"
+            scale="32"
             xChannelSelector="R"
             yChannelSelector="G"
           />
         </filter>
 
-        <filter id="text-wave-distort-lg" x="-15%" y="-25%" width="130%" height="150%">
+        <filter id="text-wave-distort-lg" x="-25%" y="-25%" width="150%" height="150%">
           <feTurbulence
             type="fractalNoise"
             baseFrequency="0.006 0.003"
@@ -92,17 +96,19 @@ export default function GlitchFilter() {
           />
           <feOffset in="noise" result="movingNoise">
             <animate
+              id="text-wave-anim-lg"
               attributeName="dy"
               values="0;-333"
               dur="10s"
               repeatCount="indefinite"
               calcMode="linear"
+              begin="indefinite"
             />
           </feOffset>
           <feDisplacementMap
             in="SourceGraphic"
             in2="movingNoise"
-            scale="26"
+            scale="55"
             xChannelSelector="R"
             yChannelSelector="G"
           />
