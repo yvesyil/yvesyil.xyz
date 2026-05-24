@@ -73,6 +73,9 @@ const FRAGMENT_SHADER = /* glsl */ `
   void main() {
     vec2 uv = vUv * 2.0 - 1.0;
     uv.x *= uResolution.x / uResolution.y;
+    // Shift the bulb visually to the right by offsetting the uv leftward,
+    // so the scene-origin (where the bulb sits) renders at +uv.x on screen.
+    uv.x -= 0.4;
 
     // Mouse-influenced camera orbit. Mouse position drives yaw/pitch, time
     // adds a slow continuous rotation underneath.
