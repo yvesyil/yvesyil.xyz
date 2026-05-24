@@ -8,10 +8,25 @@ import { useEffect } from 'react'
 
 const SELECTOR = 'h1, h2, h3, blockquote, .section-title, a:not(.no-distort)'
 const RADIUS = 160        // px — proximity for the effect to engage
-const WAVE_RADIUS = 40    // px — tighter proximity for the SVG wave filter
 const CHROMATIC_MAX = 4   // px — max red/cyan split
 const JITTER_MAX = 1    // px — random shake per frame
 const SKEW_MAX = 7       // deg — max horizontal skew
+
+// SVG wave starts appearing only once the cursor is "almost on" the text
+// (k = quadratic proximity). Below WAVE_K_START the wave is silent; from
+// WAVE_K_START to 1.0 its displacement scale ramps from 0 to the variant's
+// max scale defined below.
+const WAVE_K_START = 0.5
+const WAVE_MAX_SCALE: Record<'sm' | 'md' | 'lg', number> = {
+  sm: 10,
+  md: 32,
+  lg: 55,
+}
+
+// Flicker bursts (sharp jumps, clip-path slicing, triple-shadow flash) only
+// turn on at the very top of the proximity range — when the cursor is on top
+// of the text. Probability ramps from 0 at FLICKER_K_START to full at k=1.
+const FLICKER_K_START = 0.85
 
 export default function TextDistortion() {
   useEffect(() => {
@@ -28,9 +43,6 @@ export default function TextDistortion() {
     }
 
     const range = document.createRange()
-    // Track which elements are currently in hover range so we can detect
-    // the "out → in" transition and restart the SVG wave from frame 0.
-    const hovering = new WeakSet<HTMLElement>()
 
     const restartWave = (variant: 'sm' | 'md' | 'lg') => {
       const animate = document.getElementById(`text-wave-anim-${variant}`) as unknown as
@@ -39,8 +51,16 @@ export default function TextDistortion() {
       animate?.beginElement?.()
     }
 
+    const displacementMap = (variant: 'sm' | 'md' | 'lg') =>
+      document.querySelector(`#text-wave-distort-${variant} feDisplacementMap`) as
+        | SVGElement
+        | null
+
+    // Per-variant aggregated state, updated each frame.
+    const wantedScale: Record<'sm' | 'md' | 'lg', number> = { sm: 0, md: 0, lg: 0 }
+    const variantActive: Record<'sm' | 'md' | 'lg', boolean> = { sm: false, md: false, lg: false }
+
     const clearStyles = (el: HTMLElement) => {
-      if (hovering.has(el)) hovering.delete(el)
       if (el.style.transform || el.style.textShadow || el.style.clipPath || el.style.filter) {
         el.style.transform = ''
         el.style.textShadow = ''
@@ -51,6 +71,9 @@ export default function TextDistortion() {
 
     let raf = 0
     const update = () => {
+      wantedScale.sm = 0
+      wantedScale.md = 0
+      wantedScale.lg = 0
       const vh = window.innerHeight
       const elements = document.querySelectorAll<HTMLElement>(SELECTOR)
       elements.forEach((el) => {
@@ -110,17 +133,44 @@ export default function TextDistortion() {
           const jitterY = (Math.random() - 0.5) * k * JITTER_MAX
           const skew = nx * k * SKEW_MAX
 
-          el.style.textShadow =
-            `${(-chromatic).toFixed(2)}px 0 rgba(255, 80, 80, 0.85), ` +
-            `${chromatic.toFixed(2)}px 0 rgba(80, 220, 255, 0.85)`
+          // === FLICKER BURSTS — only fire near max proximity ===
+          const flickerStrength = k > FLICKER_K_START
+            ? (k - FLICKER_K_START) / (1 - FLICKER_K_START)
+            : 0
+
+          let glitchX = 0
+          if (flickerStrength > 0 && Math.random() < 0.06 * flickerStrength) {
+            glitchX = (Math.random() - 0.5) * 22
+          }
+
+          let clipPath = ''
+          if (flickerStrength > 0 && Math.random() < 0.05 * flickerStrength) {
+            const slice = 10 + Math.random() * 50
+            clipPath = Math.random() < 0.5
+              ? `inset(${slice.toFixed(1)}% 0 0 0)`
+              : `inset(0 0 ${slice.toFixed(1)}% 0)`
+          }
+
+          const useTripleSplit = flickerStrength > 0 && Math.random() < 0.08 * flickerStrength
+          const shadow = useTripleSplit
+            ? `${(-chromatic * 1.6).toFixed(2)}px 0 rgba(255, 80, 80, 0.9), ` +
+              `${(chromatic * 1.6).toFixed(2)}px 0 rgba(80, 220, 255, 0.9), ` +
+              `0 ${(chromatic * 0.8).toFixed(2)}px rgba(180, 255, 120, 0.4)`
+            : `${(-chromatic).toFixed(2)}px 0 rgba(255, 80, 80, 0.85), ` +
+              `${chromatic.toFixed(2)}px 0 rgba(80, 220, 255, 0.85)`
+
+          el.style.textShadow = shadow
           el.style.transform =
-            `translate(${jitterX.toFixed(2)}px, ${jitterY.toFixed(2)}px) ` +
+            `translate(${(jitterX + glitchX).toFixed(2)}px, ${jitterY.toFixed(2)}px) ` +
             `skewX(${skew.toFixed(2)}deg)`
-          // SVG displacement filter — wave-distorts the text glyphs themselves.
-          // Only engages within the much tighter WAVE_RADIUS, so it fires
-          // only when the cursor is essentially on the text (when jitter and
-          // skew are at full strength too).
-          if (d < WAVE_RADIUS) {
+          el.style.clipPath = clipPath
+          // SVG wave filter — its displacement scale is driven by per-variant
+          // max k aggregated below. The filter URL is applied here so the
+          // element receives the wave only when k passes WAVE_K_START.
+          const waveK = k > WAVE_K_START
+            ? (k - WAVE_K_START) / (1 - WAVE_K_START)  // 0 at k=START, 1 at k=1
+            : 0
+          if (waveK > 0) {
             const tag = el.tagName
             const variant: 'sm' | 'md' | 'lg' =
               tag === 'H1' || el.classList.contains('section-title')
@@ -128,22 +178,27 @@ export default function TextDistortion() {
                 : tag === 'H2'
                   ? 'md'
                   : 'sm'
+            const scale = waveK * waveK * WAVE_MAX_SCALE[variant] // quadratic ramp
+            if (scale > wantedScale[variant]) wantedScale[variant] = scale
             el.style.filter = `url(#text-wave-distort-${variant})`
-
-            // Out → in transition: restart the wave from frame 0 (bottom of
-            // the text) so each new hover begins the animation fresh.
-            if (!hovering.has(el)) {
-              hovering.add(el)
-              restartWave(variant)
-            }
-          } else {
-            if (el.style.filter) el.style.filter = ''
-            if (hovering.has(el)) hovering.delete(el)
+          } else if (el.style.filter) {
+            el.style.filter = ''
           }
         } else {
           clearStyles(el)
         }
       })
+
+      // Push aggregated scales to each variant's filter and restart the
+      // animation on the false → true transition (no elements → some).
+      for (const variant of ['sm', 'md', 'lg'] as const) {
+        const map = displacementMap(variant)
+        if (map) map.setAttribute('scale', wantedScale[variant].toFixed(2))
+        const isActive = wantedScale[variant] > 0
+        if (isActive && !variantActive[variant]) restartWave(variant)
+        variantActive[variant] = isActive
+      }
+
       raf = requestAnimationFrame(update)
     }
 
