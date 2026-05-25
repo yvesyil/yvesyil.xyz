@@ -2,9 +2,12 @@
   font-family: 'AngleFairy';
   src: url('/fonts/AngleFairy/font.woff2') format('woff2'),
        url('/fonts/AngleFairy/font.woff') format('woff');
-  font-weight: normal;
+  /* One file serves every weight. Safari refuses to synthesize bold from a
+     `font-weight: normal` face — declaring a range makes the same file cover
+     any requested weight. */
+  font-weight: 100 900;
   font-style: normal;
-  font-display: auto;
+  font-display: swap;
 }
 
 :root {
@@ -135,6 +138,9 @@ body::-webkit-scrollbar {
 
 h1, h2, h3 {
   font-family: 'AngleFairy', serif;
+  /* Explicit weight so Safari doesn't try to synthesize bold from the
+     single AngleFairy face (which it would refuse, falling back to serif). */
+  font-weight: normal;
 }
 
 h1 {
