@@ -6,7 +6,7 @@ function Home() {
   return (
     <Content title="Yvesyil" titleClassName={styles.tightTitle} next="whoami" prev="contact">
       <p className={styles.subtext}>
-        IPA: <a style={{ fontFamily: 'Garamond, serif' }} href="http://ipa-reader.xyz/?text=iv%20j%C9%AAl">/iv jɪl/</a> Eng: [eev yil]
+        IPA: <a style={{ fontFamily: 'Garamond, serif' }} href="http://ipa-reader.xyz/?text=iv%20j%C9%AAl">/ivjɪl/</a> Eng: [eev yil]
       </p>
     </Content>
   )
